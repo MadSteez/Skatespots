@@ -54,6 +54,7 @@ a{color:var(--rail-blue)}
   min-height:100vh;
   display:flex;
   flex-direction:column;
+  isolation:isolate; /* contains everything below — map, controls, Leaflet's own z-index:1000 zoom buttons — inside one stacking context, so modals (outside #app, higher z-index) always win */
 }
 
 /* ---------------- Top bar ---------------- */
