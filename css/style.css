@@ -171,7 +171,7 @@ a{color:var(--rail-blue)}
   position:relative;
 }
 .sidebar__list{padding:14px;display:flex;flex-direction:column;gap:14px}
-.map-pane{position:relative}
+.map-pane{position:relative;z-index:1} /* seals off Leaflet's internal panes (z-index up to 700) into their own stacking context so they can never render above modals/toasts */
 #map{position:absolute;inset:0}
 
 /* ---------------- Spot card (sticker + tape) ---------------- */
@@ -298,7 +298,7 @@ a{color:var(--rail-blue)}
 .modal-overlay{
   position:fixed;inset:0;background:rgba(27,27,29,0.6);
   display:flex;align-items:center;justify-content:center;
-  z-index:150;padding:20px;
+  z-index:500;padding:20px;
 }
 .modal{
   background:var(--paper);border-radius:14px;
