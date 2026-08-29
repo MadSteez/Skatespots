@@ -13,5 +13,20 @@
     ],
     "updatedAt": "2026-08-29T07:54:07.703Z",
     "createdAt": "2026-08-29T07:54:07.703Z"
+  },
+  {
+    "id": "mte34lsq4iqvdt",
+    "name": "Kiosk 6 Stair",
+    "description": "6 Stair",
+    "lat": 51.211541,
+    "lng": 5.423692,
+    "tags": [
+      "stairs"
+    ],
+    "images": [
+      "https://raw.githubusercontent.com/MadSteez/Skatespots/main/images/mte34lsq4iqvdt-1787990078402-0.jpg"
+    ],
+    "updatedAt": "2026-08-29T07:54:39.851Z",
+    "createdAt": "2026-08-29T07:54:39.851Z"
   }
 ]
