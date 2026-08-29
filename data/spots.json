@@ -54,5 +54,16 @@
     "images": [],
     "updatedAt": "2026-08-29T20:57:43.301Z",
     "createdAt": "2026-08-29T20:57:43.301Z"
+  },
+  {
+    "id": "mtev426idvs5pe",
+    "name": "test 5",
+    "description": "",
+    "lat": 51.212355,
+    "lng": 5.425014,
+    "tags": [],
+    "images": [],
+    "updatedAt": "2026-08-29T20:58:02.225Z",
+    "createdAt": "2026-08-29T20:58:02.225Z"
   }
 ]
