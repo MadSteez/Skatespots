@@ -9,7 +9,7 @@
 // https://<owner>.github.io/<repo>/ GitHub Pages URL, not custom domains).
 
 export const SITE_CONFIG = {
-  owner: "",  // e.g. "alice-skates"
-  repo: "",   // e.g. "skate-spots"
+  owner: "",  // e.g. "MadSteez"
+  repo: "",   // e.g. "Skatespots"
   branch: "", // e.g. "main" — leave blank to use the repo's default branch
 };
