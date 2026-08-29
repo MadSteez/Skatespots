@@ -109,14 +109,14 @@ async function refreshAll({ silent = false } = {}) {
     const { spots, needsSetup } = await store.loadSpots();
     allSpots = spots;
     render();
+    if (!silent) setLoading(false);
     if (needsSetup) {
       showToast("GitHub sync isn't set up yet — open Setup & sync.", { error: true, duration: 4500 });
     }
   } catch (err) {
     console.error(err);
-    showToast(err.message || "Couldn't load spots.", { error: true, duration: 5000 });
-  } finally {
     if (!silent) setLoading(false);
+    showToast(err.message || "Couldn't load spots.", { error: true, duration: 5000 });
   }
 }
 
@@ -175,13 +175,13 @@ $("detailDeleteBtn").addEventListener("click", async () => {
   try {
     setLoading(true, "Deleting…");
     await store.deleteSpot(spot.id);
+    setLoading(false);
     closeModal(detailModal);
     await refreshAll({ silent: true });
     showToast("Spot deleted.");
   } catch (err) {
-    showToast(err.message || "Couldn't delete spot.", { error: true, duration: 5000 });
-  } finally {
     setLoading(false);
+    showToast(err.message || "Couldn't delete spot.", { error: true, duration: 5000 });
   }
 });
 
@@ -315,15 +315,16 @@ $("spotForm").addEventListener("submit", async (e) => {
     await store.saveSpot(spotData, newFiles, keepImageUrls, (done, total) => {
       setLoading(true, `Uploading photos (${done}/${total})…`);
     });
+    setLoading(false);
     closeModal(formModal);
     await refreshAll({ silent: true });
     showToast(editingSpotId ? "Spot updated." : "Spot added.");
   } catch (err) {
     console.error(err);
+    setLoading(false);
     showToast(err.message || "Couldn't save spot.", { error: true, duration: 5500 });
   } finally {
     saveBtn.disabled = false;
-    setLoading(false);
   }
 });
 

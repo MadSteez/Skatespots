@@ -95,10 +95,14 @@
   <button class="fab fab--add" id="addSpotBtnMobile" aria-label="Add spot">
     <svg class="icon" width="26" height="26"><use href="#icon-plus"/></svg>
   </button>
-
-  <div class="toast" id="toast"></div>
-  <div class="loading-veil hidden" id="loadingVeil"><div class="spinner"></div><span id="loadingText">Syncing…</span></div>
 </div>
+
+<!-- These live outside #app on purpose — #app is sealed into its own stacking
+     context (so the map can never render above modals), which would otherwise
+     also trap these behind an open modal. They need to sit above everything,
+     including modals, at all times. -->
+<div class="toast" id="toast"></div>
+<div class="loading-veil hidden" id="loadingVeil"><div class="spinner"></div><span id="loadingText">Syncing…</span></div>
 
 <!-- ============ SPOT DETAIL MODAL ============ -->
 <div class="modal-overlay hidden" id="detailModal">
