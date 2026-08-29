@@ -13,5 +13,20 @@
     ],
     "updatedAt": "2026-08-29T20:48:12.474Z",
     "createdAt": "2026-08-29T20:47:46.632Z"
+  },
+  {
+    "id": "mteurzpxlawsmv",
+    "name": "test 2",
+    "description": "",
+    "lat": 51.211548,
+    "lng": 5.423681,
+    "tags": [
+      "stairs"
+    ],
+    "images": [
+      "https://raw.githubusercontent.com/madsteez/Skatespots//images/mteurzpxlawsmv-1788036519151-0.jpg"
+    ],
+    "updatedAt": "2026-08-29T20:48:40.461Z",
+    "createdAt": "2026-08-29T20:48:40.461Z"
   }
 ]
