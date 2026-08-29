@@ -28,5 +28,20 @@
     ],
     "updatedAt": "2026-08-29T07:54:39.851Z",
     "createdAt": "2026-08-29T07:54:39.851Z"
+  },
+  {
+    "id": "mte35nd030us8s",
+    "name": "Palethe 6 Stair",
+    "description": "6 Stair",
+    "lat": 51.211336,
+    "lng": 5.428957,
+    "tags": [
+      "stairs"
+    ],
+    "images": [
+      "https://raw.githubusercontent.com/MadSteez/Skatespots/main/images/mte35nd030us8s-1787990127202-0.jpg"
+    ],
+    "updatedAt": "2026-08-29T07:55:28.560Z",
+    "createdAt": "2026-08-29T07:55:28.560Z"
   }
 ]
