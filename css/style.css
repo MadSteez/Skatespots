@@ -201,9 +201,9 @@ a{color:var(--rail-blue)}
 }
 .spot-card__thumb{
   width:100%;aspect-ratio:16/9;object-fit:contain;background:var(--concrete-dark);
-  display:block;cursor:zoom-in;
+  display:block;
 }
-.spot-card__thumb--empty{display:flex;align-items:center;justify-content:center;color:var(--ink-soft);cursor:default}
+.spot-card__thumb--empty{display:flex;align-items:center;justify-content:center;color:var(--ink-soft)}
 .spot-card__body{padding:12px 14px 14px}
 .spot-card__name{font-family:var(--font-display);font-size:15.5px;margin:0 0 4px;letter-spacing:.2px}
 .spot-card__desc{font-size:13px;color:var(--ink-soft);margin:0 0 8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}

@@ -8,16 +8,22 @@ Works on desktop and mobile, and is meant to be hosted for free on
 ## 1. Get it online
 
 1. Create a new **public** GitHub repository (e.g. `skate-spots`).
-2. Upload every file in this folder to the repo, keeping the folder
+2. Open `js/site-config.js` and fill in `owner` and `repo` with your
+   GitHub username and this repo's name (e.g. `owner: "alice-skates"`,
+   `repo: "skate-spots"`). This is what lets *every* device — phones,
+   in-app browsers, whatever — reliably find the shared spot list,
+   instead of trying to guess it from the page's own address.
+3. Upload every file in this folder to the repo, keeping the folder
    structure (`index.html`, `css/`, `js/`, `data/spots.json`, `.nojekyll`).
-3. In the repo, go to **Settings → Pages**, and under "Build and
+4. In the repo, go to **Settings → Pages**, and under "Build and
    deployment" choose **Deploy from a branch**, branch `main`, folder `/ (root)`.
-4. After a minute or two your site will be live at
+5. After a minute or two your site will be live at
    `https://<your-username>.github.io/<repo-name>/`.
 
-That's it — the page works immediately in **local mode** (see below), where
-each person's spots are saved only in their own browser. To actually share
-spots with friends, set up GitHub sync (next section).
+That's it — the page works immediately in **local mode** (see below) if
+you skip step 2, where each person's spots are saved only in their own
+browser. To actually share spots with friends, fill in `site-config.js`
+as above and set up a token (next section).
 
 ## 2. Turn on shared sync (recommended)
 

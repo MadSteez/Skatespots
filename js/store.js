@@ -1,4 +1,5 @@
 import { GitHubStore } from "./github.js";
+import { SITE_CONFIG } from "./site-config.js";
 import { utf8ToB64, b64ToUtf8, compressImage, blobToRawBase64, blobToDataUrl } from "./utils.js";
 
 const CONFIG_KEY = "skatespots_config";
@@ -34,6 +35,9 @@ export function getConfig() {
     const raw = localStorage.getItem(CONFIG_KEY);
     if (raw) return JSON.parse(raw);
   } catch (_) {}
+  if (SITE_CONFIG.owner && SITE_CONFIG.repo) {
+    return { mode: "github", owner: SITE_CONFIG.owner, repo: SITE_CONFIG.repo, branch: SITE_CONFIG.branch || "", token: "" };
+  }
   const detected = detectRepoFromLocation();
   if (detected) {
     return { mode: "github", owner: detected.owner, repo: detected.repo, branch: "", token: "" };

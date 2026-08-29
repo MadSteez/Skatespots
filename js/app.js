@@ -153,13 +153,22 @@ $("detailGallery").addEventListener("click", (e) => {
   if (img) openLightbox(img.src, img.alt);
 });
 
+function requireWriteAccess() {
+  if (store.canWrite()) return true;
+  showToast("Add a GitHub token in Setup & sync before adding, editing, or deleting spots.", { error: true, duration: 5500 });
+  openSettingsModal();
+  return false;
+}
+
 $("detailEditBtn").addEventListener("click", () => {
+  if (!requireWriteAccess()) return;
   const spot = allSpots.find((s) => s.id === currentDetailId);
   closeModal(detailModal);
   if (spot) openFormModal(spot);
 });
 
 $("detailDeleteBtn").addEventListener("click", async () => {
+  if (!requireWriteAccess()) return;
   const spot = allSpots.find((s) => s.id === currentDetailId);
   if (!spot) return;
   if (!confirm(`Delete "${spot.name}"? This can't be undone.`)) return;
@@ -430,8 +439,12 @@ document.querySelectorAll(".mobile-tabs__btn").forEach((btn) => {
 // ============================================================
 // Top-level wiring
 // ============================================================
-$("addSpotBtn").addEventListener("click", () => openFormModal());
-$("addSpotBtnMobile").addEventListener("click", () => openFormModal());
+$("addSpotBtn").addEventListener("click", () => {
+  if (requireWriteAccess()) openFormModal();
+});
+$("addSpotBtnMobile").addEventListener("click", () => {
+  if (requireWriteAccess()) openFormModal();
+});
 $("settingsBtn").addEventListener("click", openSettingsModal);
 $("locateBtn").addEventListener("click", () => mapCtrl.locate());
 
@@ -461,13 +474,7 @@ clearFiltersBtn.addEventListener("click", () => {
 
 spotListEl.addEventListener("click", (e) => {
   const card = e.target.closest("[data-id]");
-  if (!card) return;
-  const thumbImg = e.target.closest(".spot-card__thumb");
-  if (thumbImg && thumbImg.tagName === "IMG") {
-    openLightbox(thumbImg.src, thumbImg.alt);
-    return;
-  }
-  openDetailModal(card.dataset.id);
+  if (card) openDetailModal(card.dataset.id);
 });
 
 // ============================================================
