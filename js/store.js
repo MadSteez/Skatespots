@@ -2,19 +2,38 @@ import { GitHubStore } from "./github.js";
 import { SITE_CONFIG } from "./site-config.js";
 import { utf8ToB64, b64ToUtf8, compressImage, blobToRawBase64, blobToDataUrl } from "./utils.js";
 
-const CONFIG_KEY = "skatespots_config";
+const TOKEN_KEY = "skatespots_token";
+const LEGACY_CONFIG_KEY = "skatespots_config"; // older versions saved a whole config object here, including owner/repo — that could permanently shadow site-config.js, so it's no longer read except to migrate a saved token out of it once.
 const LOCAL_DATA_KEY = "skatespots_local_data";
 const SPOTS_PATH = "data/spots.json";
 
 let cachedSpots = [];
 
+function migrateLegacyToken() {
+  if (localStorage.getItem(TOKEN_KEY) !== null) return;
+  try {
+    const raw = localStorage.getItem(LEGACY_CONFIG_KEY);
+    if (raw) {
+      const legacy = JSON.parse(raw);
+      if (legacy && legacy.token) localStorage.setItem(TOKEN_KEY, legacy.token);
+    }
+  } catch (_) {}
+}
+
+export function getToken() {
+  migrateLegacyToken();
+  return localStorage.getItem(TOKEN_KEY) || "";
+}
+
+export function saveToken(token) {
+  localStorage.setItem(TOKEN_KEY, (token || "").trim());
+}
+
 /**
  * A GitHub Pages URL already encodes the owner and repo:
  *  - project page: https://<owner>.github.io/<repo>/...
  *  - user/org page: https://<owner>.github.io/  (repo is literally "<owner>.github.io")
- * We use this so that anyone opening the live page can read shared spots
- * with zero setup — no branch is assumed; leaving it blank tells GitHub to
- * use the repo's actual default branch.
+ * Used only as a fallback when site-config.js hasn't been filled in.
  */
 export function detectRepoFromLocation() {
   try {
@@ -31,22 +50,15 @@ export function detectRepoFromLocation() {
 }
 
 export function getConfig() {
-  try {
-    const raw = localStorage.getItem(CONFIG_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch (_) {}
+  const token = getToken();
   if (SITE_CONFIG.owner && SITE_CONFIG.repo) {
-    return { mode: "github", owner: SITE_CONFIG.owner, repo: SITE_CONFIG.repo, branch: SITE_CONFIG.branch || "", token: "" };
+    return { mode: "github", owner: SITE_CONFIG.owner, repo: SITE_CONFIG.repo, branch: SITE_CONFIG.branch || "", token };
   }
   const detected = detectRepoFromLocation();
   if (detected) {
-    return { mode: "github", owner: detected.owner, repo: detected.repo, branch: "", token: "" };
+    return { mode: "github", owner: detected.owner, repo: detected.repo, branch: "", token };
   }
   return { mode: "local" };
-}
-
-export function saveConfig(cfg) {
-  localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
 }
 
 export function isGithubConfigured(cfg = getConfig()) {

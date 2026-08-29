@@ -178,34 +178,21 @@
   <div class="modal modal--settings">
     <button class="modal__close" data-close><svg class="icon" width="22" height="22"><use href="#icon-close"/></svg></button>
     <h2>Setup &amp; sync</h2>
-    <p class="settings__intro">Choose how spots are stored and shared with your crew.</p>
+    <p class="settings__intro">Anyone can view spots. Add a token below to add, edit, or delete them from this device.</p>
 
-    <div class="mode-tabs">
-      <button class="mode-tab is-active" data-mode="github">Shared (GitHub)</button>
-      <button class="mode-tab" data-mode="local">This device only</button>
-    </div>
+    <p class="settings__note" id="repoInfoNote">Reading spots from <strong id="repoInfoText"></strong>.</p>
+    <p class="settings__note settings__note--warn hidden" id="notConfiguredNote">This page hasn't been pointed at a repo yet — whoever set it up needs to fill in <code>js/site-config.js</code>. Spots will only be saved on this device until then.</p>
 
-    <div class="mode-panel" id="panel-github">
-      <p class="settings__note">Spots are stored in this repo's <code>data/spots.json</code> file, so everyone using this page (with a token for this repo) sees the same list. Reading works for anyone; adding/editing/deleting needs a <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">fine‑grained token</a> scoped to <strong>this repo only</strong> with <strong>Contents: Read and write</strong>.</p>
-      <label class="field"><span class="field__label">Repo owner</span><input type="text" id="cfgOwner" placeholder="e.g. your-github-username"></label>
-      <label class="field"><span class="field__label">Repo name</span><input type="text" id="cfgRepo" placeholder="e.g. skate-spots"></label>
-      <label class="field"><span class="field__label">Branch</span><input type="text" id="cfgBranch" placeholder="main" value="main"></label>
-      <label class="field"><span class="field__label">Personal access token <span class="field__label-sub">(optional — needed to save changes)</span></span><input type="password" id="cfgToken" placeholder="github_pat_…" autocomplete="off"></label>
-      <p class="settings__note settings__note--warn">Your token is stored only in this browser's local storage and sent directly to api.github.com. Anyone using this same browser profile could read it from dev tools — don't use this on a shared computer with a high‑privilege token.</p>
-    </div>
-
-    <div class="mode-panel hidden" id="panel-local">
-      <p class="settings__note">Spots are saved only in this browser. Nothing is shared automatically — use export/import to move data between devices or send it to friends.</p>
-      <div class="settings__importexport">
-        <button class="btn btn--secondary" id="exportBtn">Export spots.json</button>
-        <label class="btn btn--secondary" for="importFile">Import spots.json</label>
-        <input type="file" id="importFile" accept="application/json" hidden>
-      </div>
-    </div>
+    <label class="field">
+      <span class="field__label">Personal access token <span class="field__label-sub">(optional — needed to save changes)</span></span>
+      <input type="password" id="cfgToken" placeholder="github_pat_…" autocomplete="off">
+    </label>
+    <p class="settings__note">Create a <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">fine‑grained token</a> scoped to <strong>this repo only</strong>, with <strong>Contents: Read and write</strong> permission.</p>
+    <p class="settings__note settings__note--warn">Your token is stored only in this browser's local storage and sent directly to api.github.com. Anyone using this same browser profile could read it from dev tools — don't use this on a shared computer with a high‑privilege token.</p>
 
     <div class="form-actions">
       <button class="btn btn--ghost" data-close>Cancel</button>
-      <button class="btn btn--primary" id="saveSettingsBtn">Save &amp; sync</button>
+      <button class="btn btn--primary" id="saveSettingsBtn">Save token</button>
     </div>
   </div>
 </div>

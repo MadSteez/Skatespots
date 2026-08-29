@@ -20,27 +20,11 @@ Works on desktop and mobile, and is meant to be hosted for free on
 5. After a minute or two your site will be live at
    `https://<your-username>.github.io/<repo-name>/`.
 
-That's it — the page works immediately in **local mode** (see below) if
-you skip step 2, where each person's spots are saved only in their own
-browser. To actually share spots with friends, fill in `site-config.js`
-as above and set up a token (next section).
+That's it — every visitor now automatically reads the shared spot list
+from `data/spots.json` in this repo, no per-device setup required. To let
+people *add, edit, or delete* spots, they each need a token (next section).
 
-## 2. Turn on shared sync (recommended)
-
-Spots can be stored right in this repo, in `data/spots.json`, so that
-everyone using the page sees the same list.
-
-1. Open the page and click the gear icon (**Setup & sync**).
-2. Choose **Shared (GitHub)**.
-3. Fill in:
-   - **Repo owner** — your GitHub username or org.
-   - **Repo name** — the repo you created above.
-   - **Branch** — usually `main`.
-   - **Personal access token** — needed only to *add, edit, or delete*
-     spots. Anyone can read the list without one.
-4. Click **Save & sync**.
-
-### Creating a token
+## 2. Let people add spots (personal access tokens)
 
 Anyone in your crew who wants to add/edit/delete spots needs their own
 [fine-grained personal access token](https://github.com/settings/personal-access-tokens/new):
@@ -48,8 +32,14 @@ Anyone in your crew who wants to add/edit/delete spots needs their own
 - **Repository access**: "Only select repositories" → pick this repo.
 - **Permissions**: under "Repository permissions", set **Contents** to
   **Read and write**.
-- Copy the generated token and paste it into the Setup & sync panel. It's
-  saved only in that browser's local storage, never anywhere else.
+- On the page, click the gear icon (**Setup & sync**), paste the token in,
+  and hit **Save token**. It's saved only in that browser's local storage,
+  never anywhere else — everyone reads the same `owner/repo` from
+  `site-config.js`; the token is the only thing each device stores for itself.
+
+The Setup & sync panel also shows which `owner/repo` the page resolved to,
+which is a handy first thing to check if a device isn't seeing the shared
+list — it should match your repo exactly.
 
 ⚠️ Because this is a static site, the token is used directly from the
 browser to call the GitHub API. Don't use a token with more access than it
@@ -69,21 +59,17 @@ public computer.
 - If two people save at almost the same moment, GitHub will reject the
   second write; that person just needs to retry (the app refetches
   automatically on the next save).
-
-## 3. Local-only mode
-
-If you don't want to deal with tokens, choose **This device only** in
-Setup & sync. Everything is stored in your browser's local storage. Use the
-**Export / Import** buttons there to move your list between devices or
-hand a `spots.json` file to a friend.
+- If `js/site-config.js` is left blank (skipped step 2 above), the page
+  quietly falls back to saving spots only in that one browser, so it never
+  fully breaks — but nobody will see each other's spots until it's filled in.
 
 ## Using the app
 
 - **Map view / List view** — on mobile, switch with the tabs at the
   bottom. On desktop both are always visible.
 - **Add a spot** — tap the `+` button, fill in a name, description,
-  1–10 photos, and tags, then either type coordinates or hit
-  **Pick on map** and tap the spot's location.
+  up to 10 photos (optional), and tags, then either type coordinates or
+  hit **Pick on map** and tap the spot's location.
 - **Search & filter** — the search bar matches name and description;
   tap tag chips in the strip below the header to filter by obstacle type.
 - **Edit / delete** — open a spot (from the map or the list) to see the

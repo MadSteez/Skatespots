@@ -332,67 +332,21 @@ $("spotForm").addEventListener("submit", async (e) => {
 // ============================================================
 function openSettingsModal() {
   const cfg = store.getConfig();
-  document.querySelectorAll(".mode-tab").forEach((t) => t.classList.toggle("is-active", t.dataset.mode === (cfg.mode || "local")));
-  $("panel-github").classList.toggle("hidden", cfg.mode !== "github");
-  $("panel-local").classList.toggle("hidden", cfg.mode === "github");
-  $("cfgOwner").value = cfg.owner || "";
-  $("cfgRepo").value = cfg.repo || "";
-  $("cfgBranch").value = cfg.branch || "main";
+  const configured = cfg.mode === "github";
+  $("repoInfoNote").classList.toggle("hidden", !configured);
+  $("notConfiguredNote").classList.toggle("hidden", configured);
+  if (configured) {
+    $("repoInfoText").textContent = `${cfg.owner}/${cfg.repo}${cfg.branch ? " @ " + cfg.branch : ""}`;
+  }
   $("cfgToken").value = cfg.token || "";
   settingsModal.classList.remove("hidden");
 }
 
-document.querySelectorAll(".mode-tab").forEach((tab) => {
-  tab.addEventListener("click", () => {
-    document.querySelectorAll(".mode-tab").forEach((t) => t.classList.remove("is-active"));
-    tab.classList.add("is-active");
-    $("panel-github").classList.toggle("hidden", tab.dataset.mode !== "github");
-    $("panel-local").classList.toggle("hidden", tab.dataset.mode === "github");
-  });
-});
-
 $("saveSettingsBtn").addEventListener("click", async () => {
-  const mode = document.querySelector(".mode-tab.is-active").dataset.mode;
-  const cfg = mode === "github"
-    ? {
-        mode,
-        owner: $("cfgOwner").value.trim(),
-        repo: $("cfgRepo").value.trim(),
-        branch: $("cfgBranch").value.trim() || "main",
-        token: $("cfgToken").value.trim(),
-      }
-    : { mode: "local" };
-
-  if (mode === "github" && (!cfg.owner || !cfg.repo)) {
-    return showToast("Enter at least a repo owner and name.", { error: true });
-  }
-
-  store.saveConfig(cfg);
+  store.saveToken($("cfgToken").value);
   closeModal(settingsModal);
   await refreshAll();
-  showToast("Sync settings saved.");
-});
-
-$("exportBtn").addEventListener("click", () => store.exportSpotsAsFile(allSpots));
-
-$("importFile").addEventListener("change", async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  if (!confirm("This replaces the current spot list on this device. Continue?")) {
-    e.target.value = "";
-    return;
-  }
-  try {
-    setLoading(true, "Importing…");
-    await store.importAndPersist(file);
-    await refreshAll({ silent: true });
-    showToast("Spots imported.");
-  } catch (err) {
-    showToast("That file doesn't look like a valid spots.json.", { error: true });
-  } finally {
-    setLoading(false);
-    e.target.value = "";
-  }
+  showToast("Token saved.");
 });
 
 // ============================================================
@@ -490,7 +444,7 @@ refreshAll().then(() => {
     if (cfg.mode === "github" && !cfg.token) {
       showToast("Showing this repo's shared spots. Open Setup & sync and add a token to contribute your own.", { duration: 5500 });
     } else if (cfg.mode === "local") {
-      showToast("Tip: open Setup & sync (gear icon) to share spots with your crew via GitHub.", { duration: 5500 });
+      showToast("This page hasn't been set up to sync yet — see Setup & sync for details.", { duration: 5500 });
     }
   }
 });
