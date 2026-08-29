@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "id": "mteuqu2p9skx0v",
+    "name": "test 1",
+    "description": "",
+    "lat": 51.211306,
+    "lng": 5.423175,
+    "tags": [
+      "stairs"
+    ],
+    "images": [
+      "https://raw.githubusercontent.com/madsteez/Skatespots//images/mteuqu2p9skx0v-1788036465303-0.jpg"
+    ],
+    "updatedAt": "2026-08-29T20:47:46.632Z",
+    "createdAt": "2026-08-29T20:47:46.632Z"
+  }
+]
