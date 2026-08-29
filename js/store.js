@@ -106,9 +106,31 @@ async function persist(spotsArray, message) {
   cachedSpots = spotsArray;
 }
 
+const branchCache = new Map(); // "owner/repo" -> resolved default branch name
+
+async function resolveBranch(cfg) {
+  if (cfg.branch) return cfg.branch;
+  const key = `${cfg.owner}/${cfg.repo}`;
+  if (branchCache.has(key)) return branchCache.get(key);
+  try {
+    const res = await fetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}`);
+    if (res.ok) {
+      const json = await res.json();
+      if (json.default_branch) {
+        branchCache.set(key, json.default_branch);
+        return json.default_branch;
+      }
+    }
+  } catch (_) {
+    /* fall through to guess */
+  }
+  return "main"; // last-resort guess if the API call itself failed
+}
+
 async function uploadImages(files, spotId, onProgress) {
   const cfg = getConfig();
   const urls = [];
+  const branch = cfg.mode === "github" ? await resolveBranch(cfg) : null;
   for (let i = 0; i < files.length; i++) {
     if (onProgress) onProgress(i + 1, files.length);
     const blob = await compressImage(files[i]);
@@ -117,7 +139,7 @@ async function uploadImages(files, spotId, onProgress) {
       const b64 = await blobToRawBase64(blob);
       const filename = `images/${spotId}-${Date.now()}-${i}.jpg`;
       await gh.putFile(filename, b64, `Add photo for spot ${spotId}`);
-      urls.push(`https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${cfg.branch}/${filename}`);
+      urls.push(`https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${branch}/${filename}`);
     } else {
       urls.push(await blobToDataUrl(blob));
     }
