@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "id": "mte33wwisq1o8r",
+    "name": "Gemeentehuis Gap",
+    "description": "Street gap",
+    "lat": 51.211316,
+    "lng": 5.423204,
+    "tags": [
+      "gap"
+    ],
+    "images": [
+      "https://raw.githubusercontent.com/MadSteez/Skatespots/main/images/mte33wwisq1o8r-1787990046262-0.jpg"
+    ],
+    "updatedAt": "2026-08-29T07:54:07.703Z",
+    "createdAt": "2026-08-29T07:54:07.703Z"
+  }
+]
