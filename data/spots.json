@@ -41,5 +41,18 @@
     "images": [],
     "updatedAt": "2026-08-29T20:54:36.546Z",
     "createdAt": "2026-08-29T20:54:36.546Z"
+  },
+  {
+    "id": "mtev3nj6lilb9v",
+    "name": "test 4",
+    "description": "",
+    "lat": 51.211844,
+    "lng": 5.424221,
+    "tags": [
+      "rail"
+    ],
+    "images": [],
+    "updatedAt": "2026-08-29T20:57:43.301Z",
+    "createdAt": "2026-08-29T20:57:43.301Z"
   }
 ]
