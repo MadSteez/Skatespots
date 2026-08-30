@@ -31,13 +31,15 @@
     "description": "",
     "lat": 51.218927,
     "lng": 5.502777,
-    "tags": [],
+    "tags": [
+      "stairs"
+    ],
     "images": [
       "https://raw.githubusercontent.com/MadSteez/Skatespots/main/images/mtfwfn4zz93iy8-1788099768406-0.jpg",
       "https://raw.githubusercontent.com/MadSteez/Skatespots/main/images/mtfwfn4zz93iy8-1788099769837-1.jpg",
       "https://raw.githubusercontent.com/MadSteez/Skatespots/main/images/mtfwfn4zz93iy8-1788120305797-0.jpg"
     ],
-    "updatedAt": "2026-08-30T20:05:07.111Z",
+    "updatedAt": "2026-08-30T20:08:21.689Z",
     "createdAt": "2026-08-30T14:22:51.228Z"
   }
 ]
