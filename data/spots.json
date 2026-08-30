@@ -11,5 +11,18 @@
     ],
     "updatedAt": "2026-08-30T14:22:01.958Z",
     "createdAt": "2026-08-30T14:22:01.958Z"
+  },
+  {
+    "id": "mtfwf5ksqwmdyk",
+    "name": "test 2",
+    "description": "",
+    "lat": 51.232688,
+    "lng": 5.475311,
+    "tags": [],
+    "images": [
+      "https://raw.githubusercontent.com/MadSteez/Skatespots/main/images/mtfwf5ksqwmdyk-1788099745636-0.jpg"
+    ],
+    "updatedAt": "2026-08-30T14:22:26.943Z",
+    "createdAt": "2026-08-30T14:22:26.943Z"
   }
 ]
