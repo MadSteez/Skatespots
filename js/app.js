@@ -1,6 +1,6 @@
-import { createMapController } from "./map.js";
-import * as store from "./store.js";
-import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js";
+import { createMapController } from "./map.js?v=4";
+import * as store from "./store.js?v=4";
+import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=4";
 
 const COMMON_TAGS = [
   "ledge", "stairs", "rail", "gap", "manual pad", "bank",
@@ -45,7 +45,7 @@ function allTags() {
 function filteredSpots() {
   const q = searchQuery.trim().toLowerCase();
   return allSpots.filter((s) => {
-    const matchesQuery = !q || s.name.toLowerCase().includes(q) || (s.description || "").toLowerCase().includes(q);
+    const matchesQuery = !q || s.name.toLowerCase().includes(q) || (s.description || "").toLowerCase().includes(q) || (s.tags || []).some((t) => t.toLowerCase().includes(q));
     const matchesTags = activeTagFilters.size === 0 || (s.tags || []).some((t) => activeTagFilters.has(t));
     return matchesQuery && matchesTags;
   });

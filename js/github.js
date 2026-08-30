@@ -38,7 +38,7 @@ export class GitHubStore {
     if (res.status === 404) return null;
     if (!res.ok) throw await this._err(res, `Couldn't load ${path}`);
     const json = await res.json();
-    return { content: json.content, sha: json.sha, encoding: json.encoding };
+    return { content: json.content, sha: json.sha, encoding: json.encoding, downloadUrl: json.download_url };
   }
 
   /**

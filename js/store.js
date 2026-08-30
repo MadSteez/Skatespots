@@ -1,6 +1,6 @@
-import { GitHubStore } from "./github.js";
-import { SITE_CONFIG } from "./site-config.js";
-import { utf8ToB64, b64ToUtf8, compressImage, blobToRawBase64, blobToDataUrl } from "./utils.js";
+import { GitHubStore } from "./github.js?v=4";
+import { SITE_CONFIG } from "./site-config.js?v=4";
+import { utf8ToB64, b64ToUtf8, compressImage, blobToRawBase64, blobToDataUrl } from "./utils.js?v=4";
 
 const TOKEN_KEY = "skatespots_token";
 const LEGACY_CONFIG_KEY = "skatespots_config"; // older versions saved a whole config object here, including owner/repo — that could permanently shadow site-config.js, so it's no longer read except to migrate a saved token out of it once.
@@ -74,6 +74,39 @@ function ghFromConfig(cfg) {
   return new GitHubStore(cfg);
 }
 
+/**
+ * Photos added before this fix got a raw.githubusercontent.com URL with an
+ * empty branch segment (a literal "//"), which 404s. This finds any of
+ * those, asks GitHub for that file's real URL, and fixes it in place — and
+ * if this device can write, saves the fix back so nobody else has to.
+ */
+async function repairBrokenImageUrls(spots, cfg) {
+  const brokenPrefix = `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}//`;
+  const brokenPaths = new Set();
+  spots.forEach((s) => (s.images || []).forEach((u) => {
+    if (u.startsWith(brokenPrefix)) brokenPaths.add(u.slice(brokenPrefix.length));
+  }));
+  if (brokenPaths.size === 0) return { spots, changed: false };
+
+  const gh = ghFromConfig(cfg);
+  const fixMap = new Map(); // broken url -> fixed url
+  for (const path of brokenPaths) {
+    try {
+      const file = await gh.getFile(path);
+      if (file && file.downloadUrl) fixMap.set(brokenPrefix + path, file.downloadUrl);
+    } catch (_) {
+      /* leave this one broken if we can't resolve it */
+    }
+  }
+  if (fixMap.size === 0) return { spots, changed: false };
+
+  const fixed = spots.map((s) => ({
+    ...s,
+    images: (s.images || []).map((u) => fixMap.get(u) || u),
+  }));
+  return { spots: fixed, changed: true };
+}
+
 /** Load the current spot list from wherever it lives. */
 export async function loadSpots() {
   const cfg = getConfig();
@@ -84,7 +117,12 @@ export async function loadSpots() {
     }
     const gh = ghFromConfig(cfg);
     const file = await gh.getFile(SPOTS_PATH);
-    cachedSpots = file ? JSON.parse(b64ToUtf8(file.content)) : [];
+    const parsed = file ? JSON.parse(b64ToUtf8(file.content)) : [];
+    const { spots: repaired, changed } = await repairBrokenImageUrls(parsed, cfg);
+    cachedSpots = repaired;
+    if (changed && cfg.token) {
+      persist(repaired, "Fix broken image URLs (missing branch)").catch(() => {});
+    }
     return { spots: cachedSpots, needsSetup: false };
   }
   const raw = localStorage.getItem(LOCAL_DATA_KEY);
@@ -106,31 +144,9 @@ async function persist(spotsArray, message) {
   cachedSpots = spotsArray;
 }
 
-const branchCache = new Map(); // "owner/repo" -> resolved default branch name
-
-async function resolveBranch(cfg) {
-  if (cfg.branch) return cfg.branch;
-  const key = `${cfg.owner}/${cfg.repo}`;
-  if (branchCache.has(key)) return branchCache.get(key);
-  try {
-    const res = await fetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}`);
-    if (res.ok) {
-      const json = await res.json();
-      if (json.default_branch) {
-        branchCache.set(key, json.default_branch);
-        return json.default_branch;
-      }
-    }
-  } catch (_) {
-    /* fall through to guess */
-  }
-  return "main"; // last-resort guess if the API call itself failed
-}
-
 async function uploadImages(files, spotId, onProgress) {
   const cfg = getConfig();
   const urls = [];
-  const branch = cfg.mode === "github" ? await resolveBranch(cfg) : null;
   for (let i = 0; i < files.length; i++) {
     if (onProgress) onProgress(i + 1, files.length);
     const blob = await compressImage(files[i]);
@@ -138,8 +154,8 @@ async function uploadImages(files, spotId, onProgress) {
       const gh = ghFromConfig(cfg);
       const b64 = await blobToRawBase64(blob);
       const filename = `images/${spotId}-${Date.now()}-${i}.jpg`;
-      await gh.putFile(filename, b64, `Add photo for spot ${spotId}`);
-      urls.push(`https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${branch}/${filename}`);
+      const result = await gh.putFile(filename, b64, `Add photo for spot ${spotId}`);
+      urls.push(result.content.download_url);
     } else {
       urls.push(await blobToDataUrl(blob));
     }
@@ -187,7 +203,8 @@ export async function deleteSpot(id) {
   const cfg = getConfig();
   if (cfg.mode === "github" && spot && spot.images && spot.images.length) {
     const gh = ghFromConfig(cfg);
-    const marker = `/${cfg.branch}/`;
+    const branch = await resolveBranch(cfg);
+    const marker = `/${branch}/`;
     for (const url of spot.images) {
       try {
         const idx = url.indexOf(marker);
