@@ -1,6 +1,6 @@
-import { createMapController } from "./map.js?v=4";
-import * as store from "./store.js?v=4";
-import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=4";
+import { createMapController } from "./map.js?v=6";
+import * as store from "./store.js?v=6";
+import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=6";
 
 const COMMON_TAGS = [
   "ledge", "stairs", "rail", "gap", "manual pad", "bank",
@@ -123,15 +123,48 @@ async function refreshAll({ silent = false } = {}) {
 // ============================================================
 // Detail modal
 // ============================================================
+let galleryImages = [];
+let galleryIndex = 0;
+
+function renderGalleryFrame(images, index, { expandable = false } = {}) {
+  const multi = images.length > 1;
+  return `
+    <div class="gallery-frame">
+      <img src="${images[index]}" alt="">
+      ${multi ? `
+        <button type="button" class="gallery-nav gallery-nav--prev" data-nav="prev" aria-label="Previous photo"><svg class="icon" width="18" height="18"><use href="#icon-chevron-left"/></svg></button>
+        <button type="button" class="gallery-nav gallery-nav--next" data-nav="next" aria-label="Next photo"><svg class="icon" width="18" height="18"><use href="#icon-chevron-right"/></svg></button>
+        <div class="gallery-counter">${index + 1} / ${images.length}</div>
+      ` : ""}
+      ${expandable ? `<button type="button" class="gallery-expand" data-expand aria-label="Enlarge photo"><svg class="icon" width="16" height="16"><use href="#icon-expand"/></svg></button>` : ""}
+    </div>`;
+}
+
+function renderDetailGallery() {
+  const el = $("detailGallery");
+  el.innerHTML = galleryImages.length
+    ? renderGalleryFrame(galleryImages, galleryIndex, { expandable: true })
+    : `<div class="detail__gallery--empty">No photos yet</div>`;
+}
+
+function renderLightboxFrame() {
+  $("lightboxContent").innerHTML = renderGalleryFrame(galleryImages, galleryIndex, { expandable: false });
+}
+
+function stepGallery(dir) {
+  if (galleryImages.length < 2) return;
+  galleryIndex = (galleryIndex + dir + galleryImages.length) % galleryImages.length;
+  renderDetailGallery();
+  if (!lightboxModal.classList.contains("hidden")) renderLightboxFrame();
+}
+
 function openDetailModal(id) {
   const spot = allSpots.find((s) => s.id === id);
   if (!spot) return;
   currentDetailId = id;
-
-  const gallery = $("detailGallery");
-  gallery.innerHTML = spot.images && spot.images.length
-    ? spot.images.map((src) => `<img src="${src}" alt="${escapeHtml(spot.name)}">`).join("")
-    : `<div class="detail__gallery--empty">No photos yet</div>`;
+  galleryImages = spot.images || [];
+  galleryIndex = 0;
+  renderDetailGallery();
 
   $("detailName").textContent = spot.name;
   $("detailTags").innerHTML = renderTagPills(spot.tags);
@@ -142,15 +175,23 @@ function openDetailModal(id) {
   mapCtrl.focusSpot(id);
 }
 
-function openLightbox(src, alt = "") {
-  $("lightboxImg").src = src;
-  $("lightboxImg").alt = alt;
+function openLightbox() {
+  renderLightboxFrame();
   lightboxModal.classList.remove("hidden");
 }
 
 $("detailGallery").addEventListener("click", (e) => {
-  const img = e.target.closest("img");
-  if (img) openLightbox(img.src, img.alt);
+  const navBtn = e.target.closest("[data-nav]");
+  if (navBtn) {
+    stepGallery(navBtn.dataset.nav === "prev" ? -1 : 1);
+    return;
+  }
+  if (e.target.closest("[data-expand]")) openLightbox();
+});
+
+$("lightboxContent").addEventListener("click", (e) => {
+  const navBtn = e.target.closest("[data-nav]");
+  if (navBtn) stepGallery(navBtn.dataset.nav === "prev" ? -1 : 1);
 });
 
 function requireWriteAccess() {
@@ -375,6 +416,10 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     document.querySelectorAll(".modal-overlay:not(.hidden)").forEach(closeModal);
   }
+  if (!lightboxModal.classList.contains("hidden")) {
+    if (e.key === "ArrowLeft") stepGallery(-1);
+    if (e.key === "ArrowRight") stepGallery(1);
+  }
 });
 
 // ============================================================
@@ -402,6 +447,10 @@ $("addSpotBtnMobile").addEventListener("click", () => {
 });
 $("settingsBtn").addEventListener("click", openSettingsModal);
 $("locateBtn").addEventListener("click", () => mapCtrl.locate());
+$("layersBtn").addEventListener("click", () => {
+  const type = mapCtrl.toggleMapType();
+  $("layersBtn").classList.toggle("is-active", type === "satellite");
+});
 
 $("searchInput").addEventListener(
   "input",
