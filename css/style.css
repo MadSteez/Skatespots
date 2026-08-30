@@ -37,6 +37,7 @@ html,body{height:100%}
 body{
   margin:0;
   overflow:hidden; /* prevent page-level scroll — only .sidebar should scroll, the map stays fixed */
+  touch-action:pan-x pan-y; /* allow normal scrolling/panning but disable pinch- and double-tap-zoom on the page; Leaflet manages the map's own zoom independently via its own container */
   font-family:var(--font-body);
   color:var(--ink);
   background:
@@ -232,7 +233,6 @@ a{color:var(--rail-blue)}
   position:absolute;top:0;left:2px;
   width:24px;height:24px;border-radius:50%;
   background:var(--tape-orange);
-  border:2px solid var(--ink);
   box-shadow:0 2px 4px rgba(0,0,0,0.35);
 }
 .spot-pin__dot::after{ /* classic pin center dot */
@@ -261,6 +261,7 @@ a{color:var(--rail-blue)}
   display:flex;align-items:center;justify-content:center;
   box-shadow:var(--shadow-pop);
   cursor:pointer;
+  z-index:1010; /* above Leaflet's internal panes/controls (up to 1000) inside the map-pane's stacking context */
 }
 .fab--locate{position:absolute;right:16px;bottom:16px;background:var(--paper);color:var(--ink);border-color:var(--ink);width:44px;height:44px}
 .fab--layers{position:absolute;right:16px;bottom:68px;background:var(--paper);color:var(--ink);border-color:var(--ink);width:44px;height:44px}
@@ -360,7 +361,7 @@ a{color:var(--rail-blue)}
 #detailGallery .gallery-frame{border-radius:14px 14px 0 0}
 .gallery-frame img{width:100%;height:100%;object-fit:cover;display:block;user-select:none}
 .gallery-nav{
-  position:absolute;top:0;bottom:0;width:38%;
+  position:absolute;top:0;bottom:0;width:16%;
   background:none;border:none;cursor:pointer;padding:0;
   display:flex;align-items:center;color:#fff;
 }
@@ -380,21 +381,6 @@ a{color:var(--rail-blue)}
   width:32px;height:32px;border-radius:50%;
   background:rgba(27,27,29,0.55);color:#fff;border:none;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
-}
-
-/* Lightbox (image enlarge) */
-.modal--lightbox{
-  background:none;border:none;box-shadow:none;padding:0;
-  max-width:94vw;max-height:94vh;width:min(94vw,720px);
-}
-.modal--lightbox .gallery-frame{
-  max-height:90vh;
-  border-radius:10px;box-shadow:var(--shadow-pop);
-}
-.modal--lightbox .modal__close{
-  top:-6px;right:-6px;background:var(--ink);color:#fff;border-radius:50%;
-  width:32px;height:32px;display:flex;align-items:center;justify-content:center;
-  z-index:3;
 }
 
 /* Form */

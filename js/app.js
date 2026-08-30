@@ -1,6 +1,6 @@
-import { createMapController } from "./map.js?v=6";
-import * as store from "./store.js?v=6";
-import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=6";
+import { createMapController } from "./map.js?v=7";
+import * as store from "./store.js?v=7";
+import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=7";
 
 const COMMON_TAGS = [
   "ledge", "stairs", "rail", "gap", "manual pad", "bank",
@@ -29,7 +29,6 @@ const resultCountEl = $("resultCount");
 const detailModal = $("detailModal");
 const formModal = $("formModal");
 const settingsModal = $("settingsModal");
-const lightboxModal = $("lightboxModal");
 
 const mapCtrl = createMapController("map");
 
@@ -126,7 +125,7 @@ async function refreshAll({ silent = false } = {}) {
 let galleryImages = [];
 let galleryIndex = 0;
 
-function renderGalleryFrame(images, index, { expandable = false } = {}) {
+function renderGalleryFrame(images, index) {
   const multi = images.length > 1;
   return `
     <div class="gallery-frame">
@@ -136,26 +135,21 @@ function renderGalleryFrame(images, index, { expandable = false } = {}) {
         <button type="button" class="gallery-nav gallery-nav--next" data-nav="next" aria-label="Next photo"><svg class="icon" width="18" height="18"><use href="#icon-chevron-right"/></svg></button>
         <div class="gallery-counter">${index + 1} / ${images.length}</div>
       ` : ""}
-      ${expandable ? `<button type="button" class="gallery-expand" data-expand aria-label="Enlarge photo"><svg class="icon" width="16" height="16"><use href="#icon-expand"/></svg></button>` : ""}
+      <button type="button" class="gallery-expand" data-open-tab aria-label="Open photo in a new tab"><svg class="icon" width="16" height="16"><use href="#icon-external"/></svg></button>
     </div>`;
 }
 
 function renderDetailGallery() {
   const el = $("detailGallery");
   el.innerHTML = galleryImages.length
-    ? renderGalleryFrame(galleryImages, galleryIndex, { expandable: true })
+    ? renderGalleryFrame(galleryImages, galleryIndex)
     : `<div class="detail__gallery--empty">No photos yet</div>`;
-}
-
-function renderLightboxFrame() {
-  $("lightboxContent").innerHTML = renderGalleryFrame(galleryImages, galleryIndex, { expandable: false });
 }
 
 function stepGallery(dir) {
   if (galleryImages.length < 2) return;
   galleryIndex = (galleryIndex + dir + galleryImages.length) % galleryImages.length;
   renderDetailGallery();
-  if (!lightboxModal.classList.contains("hidden")) renderLightboxFrame();
 }
 
 function openDetailModal(id) {
@@ -175,23 +169,15 @@ function openDetailModal(id) {
   mapCtrl.focusSpot(id);
 }
 
-function openLightbox() {
-  renderLightboxFrame();
-  lightboxModal.classList.remove("hidden");
-}
-
 $("detailGallery").addEventListener("click", (e) => {
   const navBtn = e.target.closest("[data-nav]");
   if (navBtn) {
     stepGallery(navBtn.dataset.nav === "prev" ? -1 : 1);
     return;
   }
-  if (e.target.closest("[data-expand]")) openLightbox();
-});
-
-$("lightboxContent").addEventListener("click", (e) => {
-  const navBtn = e.target.closest("[data-nav]");
-  if (navBtn) stepGallery(navBtn.dataset.nav === "prev" ? -1 : 1);
+  if (e.target.closest("[data-open-tab]")) {
+    window.open(galleryImages[galleryIndex], "_blank", "noopener");
+  }
 });
 
 function requireWriteAccess() {
@@ -416,7 +402,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     document.querySelectorAll(".modal-overlay:not(.hidden)").forEach(closeModal);
   }
-  if (!lightboxModal.classList.contains("hidden")) {
+  if (!detailModal.classList.contains("hidden")) {
     if (e.key === "ArrowLeft") stepGallery(-1);
     if (e.key === "ArrowRight") stepGallery(1);
   }
@@ -481,12 +467,17 @@ spotListEl.addEventListener("click", (e) => {
   if (card) openDetailModal(card.dataset.id);
 });
 
+// Prevent page-level zoom on desktop (Ctrl+wheel, Safari's pinch-gesture
+// events) — the map manages its own zoom independently of these.
+document.addEventListener("wheel", (e) => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+document.addEventListener("gesturestart", (e) => e.preventDefault());
+document.addEventListener("gesturechange", (e) => e.preventDefault());
+
 // ============================================================
 // Boot
 // ============================================================
 switchMobileView("map");
 refreshAll().then(() => {
-  mapCtrl.fitToMarkers();
   const cfg = store.getConfig();
   const alreadySeenTip = localStorage.getItem("skatespots_seen_tip");
   if (!alreadySeenTip) {
