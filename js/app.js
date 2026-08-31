@@ -1,6 +1,6 @@
-import { createMapController } from "./map.js?v=7";
-import * as store from "./store.js?v=7";
-import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=7";
+import { createMapController } from "./map.js?v=8";
+import * as store from "./store.js?v=8";
+import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=8";
 
 const COMMON_TAGS = [
   "ledge", "stairs", "rail", "gap", "manual pad", "bank",
@@ -262,7 +262,7 @@ function renderImagePreviews() {
     .map((item, i) => {
       const src = item.type === "existing" ? item.url : item.previewUrl;
       return `<div class="image-preview" data-idx="${i}">
-        <img src="${src}" alt="">
+        <img src="${src}" alt="" draggable="false">
         <button type="button" class="image-preview__remove" data-remove-idx="${i}" aria-label="Remove photo">×</button>
       </div>`;
     })
@@ -275,6 +275,43 @@ $("imagePreviews").addEventListener("click", (e) => {
   const idx = Number(btn.dataset.removeIdx);
   const [removed] = previewItems.splice(idx, 1);
   if (removed?.type === "pending") URL.revokeObjectURL(removed.previewUrl);
+  renderImagePreviews();
+});
+
+// Drag to reorder photos — uses Pointer Events (not native HTML5 drag/drop,
+// which touch browsers don't support) so this works on phones too.
+let dragEl = null;
+const imagePreviewsEl = $("imagePreviews");
+
+imagePreviewsEl.addEventListener("pointerdown", (e) => {
+  if (e.target.closest("[data-remove-idx]")) return; // don't start a drag from the remove button
+  const item = e.target.closest(".image-preview");
+  if (!item) return;
+  dragEl = item;
+  item.setPointerCapture(e.pointerId);
+  item.classList.add("is-dragging");
+});
+
+imagePreviewsEl.addEventListener("pointermove", (e) => {
+  if (!dragEl) return;
+  e.preventDefault();
+  const overEl = document.elementFromPoint(e.clientX, e.clientY)?.closest(".image-preview");
+  if (!overEl || overEl === dragEl || overEl.parentElement !== dragEl.parentElement) return;
+  const items = [...imagePreviewsEl.children];
+  if (items.indexOf(dragEl) < items.indexOf(overEl)) {
+    imagePreviewsEl.insertBefore(dragEl, overEl.nextSibling);
+  } else {
+    imagePreviewsEl.insertBefore(dragEl, overEl);
+  }
+});
+
+imagePreviewsEl.addEventListener("pointerup", (e) => {
+  if (!dragEl) return;
+  dragEl.classList.remove("is-dragging");
+  dragEl.releasePointerCapture(e.pointerId);
+  const newOrder = [...imagePreviewsEl.children].map((el) => Number(el.dataset.idx));
+  previewItems = newOrder.map((originalIdx) => previewItems[originalIdx]);
+  dragEl = null;
   renderImagePreviews();
 });
 

@@ -75,20 +75,7 @@ a{color:var(--rail-blue)}
   border-bottom:4px solid var(--tape-orange);
 }
 .wordmark{display:flex;align-items:center;gap:8px;flex-shrink:0;position:relative}
-.wordmark__text{
-  font-family:var(--font-display);
-  font-size:22px;
-  letter-spacing:1px;
-  color:var(--paper);
-  transform:rotate(-2deg);
-  display:inline-block;
-}
-.wordmark__tape{
-  width:22px;height:14px;background:var(--tape-orange);
-  transform:rotate(-8deg);
-  display:inline-block;
-  border-radius:2px;
-}
+.wordmark__logo{height:38px;width:auto;display:block}
 .searchbar{
   flex:1;
   max-width:480px;
@@ -226,32 +213,22 @@ a{color:var(--rail-blue)}
 
 /* ---------------- Leaflet marker override ---------------- */
 .spot-pin{
-  position:relative;
-  width:28px;height:36px;
+  width:30px;height:30px;
 }
-.spot-pin__dot{
-  position:absolute;top:0;left:2px;
-  width:24px;height:24px;border-radius:50%;
-  background:var(--tape-orange);
-  box-shadow:0 2px 4px rgba(0,0,0,0.35);
+.spot-pin__mark{
+  width:100%;height:100%;
+  background-color:var(--tape-orange);
+  -webkit-mask-image:url('../assets/marker.png');
+  mask-image:url('../assets/marker.png');
+  -webkit-mask-size:contain;
+  mask-size:contain;
+  -webkit-mask-repeat:no-repeat;
+  mask-repeat:no-repeat;
+  -webkit-mask-position:center;
+  mask-position:center;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,0.4));
 }
-.spot-pin__dot::after{ /* classic pin center dot */
-  content:"";
-  position:absolute;top:50%;left:50%;
-  width:9px;height:9px;margin:-4.5px 0 0 -4.5px;
-  border-radius:50%;
-  background:#fff;
-}
-.spot-pin__tail{
-  position:absolute;top:20px;left:50%;
-  transform:translateX(-50%);
-  width:0;height:0;
-  border-left:6px solid transparent;
-  border-right:6px solid transparent;
-  border-top:11px solid var(--tape-orange);
-}
-.spot-pin.is-temp .spot-pin__dot{background:var(--curb-yellow)}
-.spot-pin.is-temp .spot-pin__tail{border-top-color:var(--curb-yellow)}
+.spot-pin.is-temp .spot-pin__mark{background-color:var(--curb-yellow)}
 
 /* ---------------- FABs ---------------- */
 .fab{
@@ -267,7 +244,7 @@ a{color:var(--rail-blue)}
 .fab--layers{position:absolute;right:16px;bottom:68px;background:var(--paper);color:var(--ink);border-color:var(--ink);width:44px;height:44px}
 .fab--layers.is-active{background:var(--tape-orange);color:#fff}
 .fab--add{
-  position:fixed;right:18px;bottom:calc(var(--tabs-h) + 18px);
+  position:fixed;right:16px;bottom:calc(var(--tabs-h) + 128px);
   background:var(--tape-orange);border-color:var(--ink);
   z-index:35;display:none;
 }
@@ -359,7 +336,7 @@ a{color:var(--rail-blue)}
   background:var(--concrete-dark);overflow:hidden;
 }
 #detailGallery .gallery-frame{border-radius:14px 14px 0 0}
-.gallery-frame img{width:100%;height:100%;object-fit:cover;display:block;user-select:none}
+.gallery-frame img{width:100%;height:100%;object-fit:contain;display:block;user-select:none}
 .gallery-nav{
   position:absolute;top:0;bottom:0;width:16%;
   background:none;border:none;cursor:pointer;padding:0;
@@ -395,7 +372,9 @@ a{color:var(--rail-blue)}
 .image-previews{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .image-preview{
   position:relative;width:76px;height:76px;border-radius:8px;overflow:hidden;border:1.5px solid var(--line);
+  cursor:grab;touch-action:none;
 }
+.image-preview.is-dragging{opacity:0.45;cursor:grabbing}
 .image-preview img{width:100%;height:100%;object-fit:cover;display:block}
 .image-preview__remove{
   position:absolute;top:2px;right:2px;background:rgba(27,27,29,0.75);color:#fff;
@@ -418,9 +397,8 @@ a{color:var(--rail-blue)}
   .mobile-tabs{display:flex}
   .fab--add{display:flex}
   .topbar{padding:0 12px;gap:10px}
-  .topbar__actions .btn--primary span{display:none}
-  .topbar__actions .btn--primary{padding:9px}
-  .wordmark__text{font-size:19px}
+  .topbar__actions .btn--primary{display:none}
+  .wordmark__logo{height:30px}
   .filterstrip{padding:0 12px;top:var(--topbar-h)}
   .toast{bottom:calc(var(--tabs-h) + 14px + env(safe-area-inset-bottom, 0px))}
 }

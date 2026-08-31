@@ -56,9 +56,9 @@ export function createMapController(mapElId) {
   function pinIcon(temp = false) {
     return L.divIcon({
       className: "",
-      html: `<div class="spot-pin${temp ? " is-temp" : ""}"><div class="spot-pin__dot"></div><div class="spot-pin__tail"></div></div>`,
-      iconSize: [28, 36],
-      iconAnchor: [14, 31],
+      html: `<div class="spot-pin${temp ? " is-temp" : ""}"><div class="spot-pin__mark"></div></div>`,
+      iconSize: [30, 30],
+      iconAnchor: [15, 29],
     });
   }
 
