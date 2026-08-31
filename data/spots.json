@@ -32,14 +32,15 @@
     "lat": 51.218927,
     "lng": 5.502777,
     "tags": [
-      "stairs"
+      "stairs",
+      "outledge"
     ],
     "images": [
       "https://raw.githubusercontent.com/MadSteez/Skatespots/main/images/mtfwfn4zz93iy8-1788099769837-1.jpg",
       "https://raw.githubusercontent.com/MadSteez/Skatespots/main/images/mtfwfn4zz93iy8-1788120305797-0.jpg",
       "https://raw.githubusercontent.com/MadSteez/Skatespots/main/images/mtfwfn4zz93iy8-1788099768406-0.jpg"
     ],
-    "updatedAt": "2026-08-31T20:34:44.905Z",
+    "updatedAt": "2026-08-31T20:35:18.500Z",
     "createdAt": "2026-08-30T14:22:51.228Z"
   }
 ]
