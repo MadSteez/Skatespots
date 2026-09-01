@@ -1,6 +1,6 @@
-import { createMapController } from "./map.js?v=9";
-import * as store from "./store.js?v=9";
-import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=9";
+import { createMapController } from "./map.js?v=10";
+import * as store from "./store.js?v=10";
+import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=10";
 
 const COMMON_TAGS = [
   "ledge", "stairs", "rail", "gap", "manual pad", "bank",
@@ -177,6 +177,7 @@ function openDetailModal(id) {
   $("detailCoords").textContent = `${spot.lat.toFixed(5)}, ${spot.lng.toFixed(5)}`;
 
   detailModal.classList.remove("hidden");
+  history.replaceState(null, "", `${location.pathname}${location.search}#spot=${encodeURIComponent(id)}`);
 }
 
 // Clicking a marker's preview popup opens the full detail modal; the popup
@@ -463,6 +464,9 @@ function closeModal(modalEl) {
   modalEl.classList.add("hidden");
   mapCtrl.disablePickMode();
   mapCtrl.clearTempMarker();
+  if (modalEl === detailModal && location.hash.startsWith("#spot=")) {
+    history.replaceState(null, "", location.pathname + location.search);
+  }
 }
 document.querySelectorAll("[data-close]").forEach((btn) => {
   btn.addEventListener("click", (e) => closeModal(e.target.closest(".modal-overlay")));
@@ -505,9 +509,6 @@ document.querySelectorAll(".mobile-tabs__btn").forEach((btn) => {
 // Top-level wiring
 // ============================================================
 $("addSpotBtn").addEventListener("click", () => {
-  if (requireWriteAccess()) openFormModal();
-});
-$("addSpotBtnMobile").addEventListener("click", () => {
   if (requireWriteAccess()) openFormModal();
 });
 $("settingsBtn").addEventListener("click", openSettingsModal);
@@ -561,6 +562,7 @@ function openSharedSpotFromUrl() {
   const spot = allSpots.find((s) => s.id === decodeURIComponent(match[1]));
   if (!spot) return;
   mapCtrl.focusSpot(spot.id);
+  mapCtrl.openMarkerPopup(spot.id);
   openDetailModal(spot.id);
 }
 

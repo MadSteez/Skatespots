@@ -59,6 +59,7 @@ export function createMapController(mapElId) {
       html: `<div class="spot-pin${temp ? " is-temp" : ""}"><div class="spot-pin__mark"></div></div>`,
       iconSize: [32, 32],
       iconAnchor: [16, 31],
+      popupAnchor: [0, -34],
     });
   }
 
@@ -90,7 +91,11 @@ export function createMapController(mapElId) {
   function focusSpot(id) {
     const m = markers.get(id);
     if (!m) return;
-    map.setView(m.getLatLng(), Math.max(map.getZoom(), 15), { animate: true });
+    map.setView(m.getLatLng(), Math.max(map.getZoom(), 17), { animate: true });
+  }
+
+  function openMarkerPopup(id) {
+    markers.get(id)?.openPopup();
   }
 
   function enablePickMode(onPick) {
@@ -137,6 +142,7 @@ export function createMapController(mapElId) {
     setSpots,
     fitToMarkers,
     focusSpot,
+    openMarkerPopup,
     enablePickMode,
     disablePickMode,
     clearTempMarker,

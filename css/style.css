@@ -252,7 +252,7 @@ a{color:var(--rail-blue)}
   padding:8px;cursor:pointer;min-width:150px;
 }
 .spot-preview__thumb{
-  width:42px;height:42px;border-radius:8px;object-fit:cover;flex-shrink:0;
+  width:60px;height:60px;border-radius:8px;object-fit:cover;flex-shrink:0;
   background:var(--concrete-dark);
 }
 .spot-preview__thumb--empty{display:flex;align-items:center;justify-content:center;color:var(--ink-soft)}
@@ -271,14 +271,9 @@ a{color:var(--rail-blue)}
   cursor:pointer;
   z-index:1010; /* above Leaflet's internal panes/controls (up to 1000) inside the map-pane's stacking context */
 }
-.fab--locate{position:absolute;right:16px;bottom:76px;background:var(--paper);color:var(--ink);border-color:var(--ink);width:44px;height:44px}
-.fab--layers{position:absolute;right:16px;bottom:128px;background:var(--paper);color:var(--ink);border-color:var(--ink);width:44px;height:44px}
+.fab--locate{position:absolute;right:16px;bottom:16px;background:var(--paper);color:var(--ink);border-color:var(--ink);width:44px;height:44px}
+.fab--layers{position:absolute;right:16px;bottom:68px;background:var(--paper);color:var(--ink);border-color:var(--ink);width:44px;height:44px}
 .fab--layers.is-active{background:var(--tape-orange);color:#fff}
-.fab--add{
-  position:fixed;right:16px;bottom:calc(var(--tabs-h) + 16px);
-  background:var(--tape-orange);border-color:var(--ink);
-  z-index:35;display:none;
-}
 
 /* ---------------- Mobile tabs ---------------- */
 .mobile-tabs{
@@ -426,10 +421,7 @@ a{color:var(--rail-blue)}
   .layout.view-map .map-pane{display:block}
   .layout.view-list .sidebar{display:block}
   .mobile-tabs{display:flex}
-  .fab--add{display:flex}
-  .layout.view-list ~ #addSpotBtnMobile{display:none}
   .topbar{padding:0 12px;gap:10px}
-  .topbar__actions .btn--primary{display:none}
   .wordmark__logo{height:30px}
   .filterstrip{padding:0 12px;top:var(--topbar-h)}
   .toast{bottom:calc(var(--tabs-h) + 14px + env(safe-area-inset-bottom, 0px))}
