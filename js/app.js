@@ -1,6 +1,6 @@
-import { createMapController } from "./map.js?v=8";
-import * as store from "./store.js?v=8";
-import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=8";
+import { createMapController } from "./map.js?v=9";
+import * as store from "./store.js?v=9";
+import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=9";
 
 const COMMON_TAGS = [
   "ledge", "stairs", "rail", "gap", "manual pad", "bank",
@@ -94,11 +94,22 @@ function renderList(spots) {
     .join("");
 }
 
+function renderMarkerPreview(spot) {
+  const thumb = spot.images && spot.images[0]
+    ? `<img class="spot-preview__thumb" src="${spot.images[0]}" alt="">`
+    : `<div class="spot-preview__thumb spot-preview__thumb--empty"><svg class="icon" width="18" height="18"><use href="#icon-image"/></svg></div>`;
+  return `
+    <div class="spot-preview" data-open-detail data-spot-id="${spot.id}">
+      ${thumb}
+      <div class="spot-preview__name">${escapeHtml(spot.name)}</div>
+    </div>`;
+}
+
 function render() {
   const spots = filteredSpots();
   renderTagChips();
   renderList(spots);
-  mapCtrl.setSpots(spots, openDetailModal);
+  mapCtrl.setSpots(spots, renderMarkerPreview);
   resultCountEl.textContent = `${spots.length} spot${spots.length === 1 ? "" : "s"}`;
 }
 
@@ -166,8 +177,15 @@ function openDetailModal(id) {
   $("detailCoords").textContent = `${spot.lat.toFixed(5)}, ${spot.lng.toFixed(5)}`;
 
   detailModal.classList.remove("hidden");
-  mapCtrl.focusSpot(id);
 }
+
+// Clicking a marker's preview popup opens the full detail modal; the popup
+// itself stays open underneath (Leaflet doesn't touch it), and clicking
+// empty map area closes the popup automatically (Leaflet's default).
+document.addEventListener("click", (e) => {
+  const el = e.target.closest("[data-open-detail]");
+  if (el) openDetailModal(el.dataset.spotId);
+});
 
 $("detailGallery").addEventListener("click", (e) => {
   const navBtn = e.target.closest("[data-nav]");
@@ -177,6 +195,30 @@ $("detailGallery").addEventListener("click", (e) => {
   }
   if (e.target.closest("[data-open-tab]")) {
     window.open(galleryImages[galleryIndex], "_blank", "noopener");
+  }
+});
+
+function spotShareUrl(spot) {
+  return `${location.origin}${location.pathname}#spot=${encodeURIComponent(spot.id)}`;
+}
+
+$("detailShareBtn").addEventListener("click", async () => {
+  const spot = allSpots.find((s) => s.id === currentDetailId);
+  if (!spot) return;
+  const url = spotShareUrl(spot);
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: spot.name, url });
+    } catch (_) {
+      /* user cancelled the share sheet — nothing to do */
+    }
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    showToast("Link copied to clipboard.");
+  } catch (_) {
+    showToast("Couldn't copy the link — copy it from the address bar instead.", { error: true });
   }
 });
 
@@ -511,10 +553,23 @@ document.addEventListener("gesturestart", (e) => e.preventDefault());
 document.addEventListener("gesturechange", (e) => e.preventDefault());
 
 // ============================================================
+// Shared spot links (#spot=<id>)
+// ============================================================
+function openSharedSpotFromUrl() {
+  const match = location.hash.match(/spot=([^&]+)/);
+  if (!match) return;
+  const spot = allSpots.find((s) => s.id === decodeURIComponent(match[1]));
+  if (!spot) return;
+  mapCtrl.focusSpot(spot.id);
+  openDetailModal(spot.id);
+}
+
+// ============================================================
 // Boot
 // ============================================================
 switchMobileView("map");
 refreshAll().then(() => {
+  openSharedSpotFromUrl();
   const cfg = store.getConfig();
   const alreadySeenTip = localStorage.getItem("skatespots_seen_tip");
   if (!alreadySeenTip) {

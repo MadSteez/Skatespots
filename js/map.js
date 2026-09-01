@@ -57,18 +57,24 @@ export function createMapController(mapElId) {
     return L.divIcon({
       className: "",
       html: `<div class="spot-pin${temp ? " is-temp" : ""}"><div class="spot-pin__mark"></div></div>`,
-      iconSize: [30, 30],
-      iconAnchor: [15, 29],
+      iconSize: [32, 32],
+      iconAnchor: [16, 31],
     });
   }
 
-  function setSpots(spots, onClickSpot) {
+  function setSpots(spots, renderPreviewHtml) {
     markers.forEach((m) => map.removeLayer(m));
     markers.clear();
     spots.forEach((spot) => {
       if (typeof spot.lat !== "number" || typeof spot.lng !== "number") return;
       const marker = L.marker([spot.lat, spot.lng], { icon: pinIcon() });
-      marker.on("click", () => onClickSpot(spot.id));
+      marker.bindPopup(renderPreviewHtml(spot), {
+        closeButton: false,
+        autoPan: false, // never move the map just to open a preview
+        className: "spot-popup",
+        minWidth: 170,
+        maxWidth: 230,
+      });
       marker.addTo(map);
       markers.set(spot.id, marker);
     });
