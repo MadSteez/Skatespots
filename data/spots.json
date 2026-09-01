@@ -42,5 +42,16 @@
     ],
     "updatedAt": "2026-08-31T20:35:18.500Z",
     "createdAt": "2026-08-30T14:22:51.228Z"
+  },
+  {
+    "id": "mti87djmsy40m1",
+    "name": "test 4",
+    "description": "",
+    "lat": 51.218919,
+    "lng": 5.502825,
+    "tags": [],
+    "images": [],
+    "updatedAt": "2026-09-01T05:27:50.479Z",
+    "createdAt": "2026-09-01T05:27:50.479Z"
   }
 ]
