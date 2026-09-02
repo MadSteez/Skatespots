@@ -66,7 +66,7 @@ export function createMapController(mapElId) {
   // Leaflet's built-in Popup always grows upward from its anchor point, so
   // to place a preview below the marker instead, we manage a plain
   // positioned element ourselves and keep it in sync with the map.
-  const PREVIEW_GAP = 20; // px reserved above the box for the connecting arrow
+  const PREVIEW_GAP = 10; // px reserved above the box for the connecting triangle
   let previewEl = null;
   let previewSpotId = null;
 
@@ -75,12 +75,7 @@ export function createMapController(mapElId) {
     previewEl = document.createElement("div");
     previewEl.className = "marker-preview hidden";
     previewEl.setAttribute("data-open-detail", "");
-    previewEl.innerHTML = `
-      <svg class="marker-preview__arrow" viewBox="0 0 16 20" width="16" height="20" aria-hidden="true">
-        <line x1="8" y1="20" x2="8" y2="8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-        <path d="M8 0L3 9h10L8 0z" fill="currentColor"/>
-      </svg>
-      <div class="marker-preview__content"></div>`;
+    previewEl.innerHTML = `<div class="marker-preview__content"></div>`;
     mapEl.appendChild(previewEl);
     return previewEl;
   }

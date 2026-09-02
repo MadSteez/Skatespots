@@ -243,12 +243,23 @@ a{color:var(--rail-blue)}
   width:130px;
   cursor:pointer;
 }
-.marker-preview__arrow{ /* connects the card to the marker's exact tip */
-  position:absolute;top:-20px;left:50%;
-  transform:translateX(-50%);
-  color:var(--tape-orange);
-  filter:drop-shadow(0 1px 1px rgba(0,0,0,0.4));
-  pointer-events:none;
+.marker-preview::before,
+.marker-preview::after{ /* connects the card to the marker's exact tip */
+  content:"";
+  position:absolute;left:50%;transform:translateX(-50%);
+  width:0;height:0;
+}
+.marker-preview::before{ /* thin outline, for contrast against the map */
+  top:-10px;
+  border-left:8px solid transparent;
+  border-right:8px solid transparent;
+  border-bottom:10px solid var(--line);
+}
+.marker-preview::after{ /* fill, matching the card */
+  top:-8.5px;
+  border-left:6.8px solid transparent;
+  border-right:6.8px solid transparent;
+  border-bottom:8.5px solid var(--paper);
 }
 .marker-preview__content{
   background:var(--paper);
