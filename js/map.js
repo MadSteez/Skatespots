@@ -165,6 +165,7 @@ export function createMapController(mapElId) {
       pickCallback(lat, lng);
       return;
     }
+    if (e.originalEvent.target.closest(".marker-preview")) return;
     hidePreview();
   });
 

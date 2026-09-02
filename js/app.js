@@ -1,6 +1,6 @@
-import { createMapController } from "./map.js?v=13";
-import * as store from "./store.js?v=13";
-import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=13";
+import { createMapController } from "./map.js?v=14";
+import * as store from "./store.js?v=14";
+import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=14";
 
 const COMMON_TAGS = [
   "ledge", "stairs", "rail", "gap", "manual pad", "bank",
@@ -548,7 +548,11 @@ clearFiltersBtn.addEventListener("click", () => {
 
 spotListEl.addEventListener("click", (e) => {
   const card = e.target.closest("[data-id]");
-  if (card) openDetailModal(card.dataset.id);
+  if (!card) return;
+  const id = card.dataset.id;
+  const spot = allSpots.find((s) => s.id === id);
+  if (spot) mapCtrl.showPreview(id, renderMarkerPreview(spot));
+  openDetailModal(id);
 });
 
 // Prevent page-level zoom on desktop (Ctrl+wheel, Safari's pinch-gesture
