@@ -59,9 +59,52 @@ export function createMapController(mapElId) {
       html: `<div class="spot-pin${temp ? " is-temp" : ""}"><div class="spot-pin__mark"></div></div>`,
       iconSize: [32, 32],
       iconAnchor: [16, 31],
-      popupAnchor: [0, -34],
     });
   }
+
+  // ---- custom marker preview (below the marker, anchored at its tip) ----
+  // Leaflet's built-in Popup always grows upward from its anchor point, so
+  // to place a preview below the marker instead, we manage a plain
+  // positioned element ourselves and keep it in sync with the map.
+  let previewEl = null;
+  let previewSpotId = null;
+
+  function ensurePreviewEl() {
+    if (previewEl) return previewEl;
+    previewEl = document.createElement("div");
+    previewEl.className = "marker-preview hidden";
+    previewEl.setAttribute("data-open-detail", "");
+    mapEl.appendChild(previewEl);
+    return previewEl;
+  }
+
+  function positionPreview() {
+    if (!previewEl || previewSpotId === null) return;
+    const marker = markers.get(previewSpotId);
+    if (!marker) {
+      hidePreview();
+      return;
+    }
+    const point = map.latLngToContainerPoint(marker.getLatLng());
+    previewEl.style.left = `${point.x}px`;
+    previewEl.style.top = `${point.y + 8}px`;
+  }
+
+  function showPreview(spotId, contentHtml) {
+    const el = ensurePreviewEl();
+    el.innerHTML = contentHtml;
+    el.dataset.spotId = spotId;
+    el.classList.remove("hidden");
+    previewSpotId = spotId;
+    positionPreview();
+  }
+
+  function hidePreview() {
+    if (previewEl) previewEl.classList.add("hidden");
+    previewSpotId = null;
+  }
+
+  map.on("move zoom", positionPreview);
 
   function setSpots(spots, renderPreviewHtml) {
     markers.forEach((m) => map.removeLayer(m));
@@ -69,16 +112,16 @@ export function createMapController(mapElId) {
     spots.forEach((spot) => {
       if (typeof spot.lat !== "number" || typeof spot.lng !== "number") return;
       const marker = L.marker([spot.lat, spot.lng], { icon: pinIcon() });
-      marker.bindPopup(renderPreviewHtml(spot), {
-        closeButton: false,
-        autoPan: false, // never move the map just to open a preview
-        className: "spot-popup",
-        minWidth: 170,
-        maxWidth: 230,
-      });
+      marker.on("click", () => showPreview(spot.id, renderPreviewHtml(spot)));
       marker.addTo(map);
       markers.set(spot.id, marker);
     });
+    // Markers get fully recreated above (e.g. after a filter change) — if a
+    // preview was open for a spot that still exists, keep it open in its
+    // new position; otherwise it's gone, so hide the stale preview.
+    if (previewSpotId !== null) {
+      markers.has(previewSpotId) ? positionPreview() : hidePreview();
+    }
   }
 
   function fitToMarkers() {
@@ -92,10 +135,6 @@ export function createMapController(mapElId) {
     const m = markers.get(id);
     if (!m) return;
     map.setView(m.getLatLng(), Math.max(map.getZoom(), 17), { animate: true });
-  }
-
-  function openMarkerPopup(id) {
-    markers.get(id)?.openPopup();
   }
 
   function enablePickMode(onPick) {
@@ -118,10 +157,13 @@ export function createMapController(mapElId) {
   }
 
   map.on("click", (e) => {
-    if (!pickCallback) return;
-    const { lat, lng } = e.latlng;
-    placeTempMarker(lat, lng);
-    pickCallback(lat, lng);
+    if (pickCallback) {
+      const { lat, lng } = e.latlng;
+      placeTempMarker(lat, lng);
+      pickCallback(lat, lng);
+      return;
+    }
+    hidePreview();
   });
 
   function locate() {
@@ -142,7 +184,7 @@ export function createMapController(mapElId) {
     setSpots,
     fitToMarkers,
     focusSpot,
-    openMarkerPopup,
+    showPreview,
     enablePickMode,
     disablePickMode,
     clearTempMarker,

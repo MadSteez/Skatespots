@@ -1,6 +1,6 @@
-import { createMapController } from "./map.js?v=10";
-import * as store from "./store.js?v=10";
-import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=10";
+import { createMapController } from "./map.js?v=11";
+import * as store from "./store.js?v=11";
+import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=11";
 
 const COMMON_TAGS = [
   "ledge", "stairs", "rail", "gap", "manual pad", "bank",
@@ -96,13 +96,9 @@ function renderList(spots) {
 
 function renderMarkerPreview(spot) {
   const thumb = spot.images && spot.images[0]
-    ? `<img class="spot-preview__thumb" src="${spot.images[0]}" alt="">`
-    : `<div class="spot-preview__thumb spot-preview__thumb--empty"><svg class="icon" width="18" height="18"><use href="#icon-image"/></svg></div>`;
-  return `
-    <div class="spot-preview" data-open-detail data-spot-id="${spot.id}">
-      ${thumb}
-      <div class="spot-preview__name">${escapeHtml(spot.name)}</div>
-    </div>`;
+    ? `<img class="marker-preview__thumb" src="${spot.images[0]}" alt="">`
+    : `<div class="marker-preview__thumb marker-preview__thumb--empty"><svg class="icon" width="20" height="20"><use href="#icon-image"/></svg></div>`;
+  return `${thumb}<div class="marker-preview__name">${escapeHtml(spot.name)}</div>`;
 }
 
 function render() {
@@ -221,6 +217,14 @@ $("detailShareBtn").addEventListener("click", async () => {
   } catch (_) {
     showToast("Couldn't copy the link — copy it from the address bar instead.", { error: true });
   }
+});
+
+$("detailDirectionsBtn").addEventListener("click", () => {
+  const spot = allSpots.find((s) => s.id === currentDetailId);
+  if (!spot) return;
+  // No origin param — Google Maps defaults that to the user's current location.
+  const url = `https://www.google.com/maps/dir/?api=1&destination=${spot.lat},${spot.lng}`;
+  window.open(url, "_blank", "noopener");
 });
 
 function requireWriteAccess() {
@@ -562,7 +566,7 @@ function openSharedSpotFromUrl() {
   const spot = allSpots.find((s) => s.id === decodeURIComponent(match[1]));
   if (!spot) return;
   mapCtrl.focusSpot(spot.id);
-  mapCtrl.openMarkerPopup(spot.id);
+  mapCtrl.showPreview(spot.id, renderMarkerPreview(spot));
   openDetailModal(spot.id);
 }
 
