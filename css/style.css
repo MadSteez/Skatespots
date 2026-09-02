@@ -241,23 +241,22 @@ a{color:var(--rail-blue)}
   transform:translateX(-50%);
   z-index:650;
   width:130px;
+  cursor:pointer;
+}
+.marker-preview__arrow{ /* connects the card to the marker's exact tip */
+  position:absolute;top:-20px;left:50%;
+  transform:translateX(-50%);
+  color:var(--tape-orange);
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,0.4));
+  pointer-events:none;
+}
+.marker-preview__content{
   background:var(--paper);
   border:1.5px solid var(--line);
   border-radius:10px;
   box-shadow:var(--shadow-card);
-  cursor:pointer;
-  overflow:hidden;
+  overflow:hidden; /* clips the thumbnail's corners to the card's rounding */
 }
-.marker-preview::before,
-.marker-preview::after{ /* small tail pointing up at the marker */
-  content:"";
-  position:absolute;left:50%;transform:translateX(-50%);
-  width:0;height:0;
-  border-left:8px solid transparent;
-  border-right:8px solid transparent;
-}
-.marker-preview::before{top:-8px;border-bottom:8px solid var(--line)}
-.marker-preview::after{top:-6.5px;border-bottom:6.5px solid var(--paper)}
 .marker-preview__thumb{
   width:100%;aspect-ratio:16/9;object-fit:contain;display:block;
   background:var(--concrete-dark);
