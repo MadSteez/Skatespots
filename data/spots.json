@@ -50,8 +50,10 @@
     "lat": 51.218919,
     "lng": 5.502825,
     "tags": [],
-    "images": [],
-    "updatedAt": "2026-09-01T05:27:50.479Z",
+    "images": [
+      "https://raw.githubusercontent.com/MadSteez/Skatespots/main/images/mti87djmsy40m1-1788468832649-0.jpg"
+    ],
+    "updatedAt": "2026-09-03T20:53:54.493Z",
     "createdAt": "2026-09-01T05:27:50.479Z"
   }
 ]
