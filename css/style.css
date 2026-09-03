@@ -371,6 +371,7 @@ a{color:var(--rail-blue)}
 .detail__tags{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}
 .detail__desc{font-size:14.5px;line-height:1.55;color:var(--ink-soft);white-space:pre-wrap}
 .detail__coords{font-family:var(--font-mono);font-size:12px;color:var(--ink-soft)}
+.detail__dates{font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);margin-top:2px}
 .detail__actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
 
 /* Gallery frame — one photo at a time, click left/right thirds to navigate.

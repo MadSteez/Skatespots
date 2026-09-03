@@ -1,6 +1,6 @@
-import { createMapController } from "./map.js?v=18";
-import * as store from "./store.js?v=18";
-import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=18";
+import { createMapController } from "./map.js?v=20";
+import * as store from "./store.js?v=20";
+import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=20";
 
 const COMMON_TAGS = [
   "stairs", "gap", "ledge", "outledge", "downledge", "flatrail", "outrail",
@@ -38,7 +38,9 @@ const mapCtrl = createMapController("map");
 function allTags() {
   const set = new Set();
   allSpots.forEach((s) => (s.tags || []).forEach((t) => set.add(t)));
-  return [...set].sort();
+  const known = COMMON_TAGS.filter((t) => set.has(t));
+  const unknown = [...set].filter((t) => !COMMON_TAGS.includes(t)).sort();
+  return [...known, ...unknown];
 }
 
 function filteredSpots() {
@@ -159,6 +161,12 @@ function stepGallery(dir) {
   renderDetailGallery();
 }
 
+function formatDate(iso) {
+  const d = iso ? new Date(iso) : null;
+  if (!d || Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+}
+
 function openDetailModal(id) {
   const spot = allSpots.find((s) => s.id === id);
   if (!spot) return;
@@ -171,6 +179,12 @@ function openDetailModal(id) {
   $("detailTags").innerHTML = renderTagPills(spot.tags);
   $("detailDesc").textContent = spot.description || "No description yet.";
   $("detailCoords").textContent = `${spot.lat.toFixed(5)}, ${spot.lng.toFixed(5)}`;
+  const added = formatDate(spot.createdAt);
+  const edited = formatDate(spot.updatedAt);
+  $("detailDates").textContent = [
+    added ? `Added ${added}` : null,
+    edited && edited !== added ? `Edited ${edited}` : null,
+  ].filter(Boolean).join(" · ");
 
   detailModal.classList.remove("hidden");
   history.replaceState(null, "", `${location.pathname}${location.search}#spot=${encodeURIComponent(id)}`);
