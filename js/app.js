@@ -1,10 +1,10 @@
-import { createMapController } from "./map.js?v=16";
-import * as store from "./store.js?v=16";
-import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=16";
+import { createMapController } from "./map.js?v=17";
+import * as store from "./store.js?v=17";
+import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=17";
 
 const COMMON_TAGS = [
-  "ledge", "stairs", "rail", "gap", "manual pad", "bank",
-  "hubba", "quarter pipe", "bowl", "curb", "drop", "flat bar",
+  "stairs", "gap", "ledge", "outledge", "downledge", "flatrail",
+  "handrail", "manual pad", "bank", "pyramid", "quarterpipe",
 ];
 
 // ---------------- state ----------------

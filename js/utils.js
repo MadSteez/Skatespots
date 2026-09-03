@@ -28,8 +28,15 @@ export function fileToRawBase64(file) {
   });
 }
 
-// Resize + compress an image file client-side via canvas, returns a Blob (JPEG)
-export function compressImage(file, maxDim = 1400, quality = 0.82) {
+// Resize + compress an image file client-side via canvas, returns a Blob (JPEG).
+// Defaults are intentionally close to lossless (most phone photos are already
+// at or below 4000px on their long edge, and JPEG quality 0.95 has no
+// perceptible loss) — this step exists mainly so every photo, regardless of
+// source format (e.g. HEIC from iPhones) or EXIF orientation, ends up as a
+// normal, correctly-oriented JPEG every browser can display, not to shrink
+// files. Raise maxDim/quality further, or skip this entirely and upload
+// files as-is, if that normalization isn't a concern for your group.
+export function compressImage(file, maxDim = 4000, quality = 0.95) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
