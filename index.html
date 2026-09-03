@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="css/style.css?v=21">
+<link rel="stylesheet" href="css/style.css?v=23">
 
 <!-- inline SVG icon sprite, referenced via <use> throughout the app -->
 </head>
@@ -77,6 +77,12 @@
   <div class="filterstrip" id="filterStrip">
     <div class="filterstrip__chips" id="tagChips"></div>
     <button class="chip chip--clear hidden" id="clearFiltersBtn">Clear filters ×</button>
+    <select class="sort-select" id="sortSelect" aria-label="Sort spots by">
+      <option value="default">Sort: default</option>
+      <option value="distance">Nearest to me</option>
+      <option value="created_desc">Newest added</option>
+      <option value="updated_desc">Recently updated</option>
+    </select>
     <span class="filterstrip__count" id="resultCount"></span>
   </div>
 
@@ -227,6 +233,6 @@
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script type="module" src="js/app.js?v=21"></script>
+<script type="module" src="js/app.js?v=23"></script>
 </body>
 </html>

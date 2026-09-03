@@ -1,6 +1,6 @@
-import { createMapController } from "./map.js?v=21";
-import * as store from "./store.js?v=21";
-import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=21";
+import { createMapController } from "./map.js?v=23";
+import * as store from "./store.js?v=23";
+import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=23";
 
 const COMMON_TAGS = [
   "stairs", "gap", "ledge", "outledge", "downledge", "flatrail", "outrail",
@@ -52,6 +52,33 @@ function filteredSpots() {
   });
 }
 
+let sortMode = "default";
+let userLocation = null; // { lat, lng } once geolocation succeeds
+
+function distanceKm(a, b) {
+  const R = 6371;
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const sinLat = Math.sin(dLat / 2);
+  const sinLng = Math.sin(dLng / 2);
+  const h = sinLat * sinLat + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * sinLng * sinLng;
+  return R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+}
+
+function sortSpots(spots) {
+  if (sortMode === "distance" && userLocation) {
+    return [...spots].sort((a, b) => distanceKm(userLocation, a) - distanceKm(userLocation, b));
+  }
+  if (sortMode === "created_desc") {
+    return [...spots].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  }
+  if (sortMode === "updated_desc") {
+    return [...spots].sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+  }
+  return spots;
+}
+
 function renderTagChips() {
   const tags = allTags();
   tagChipsEl.innerHTML = tags
@@ -78,16 +105,20 @@ function renderList(spots) {
     return;
   }
   emptyStateEl.classList.add("hidden");
+  const showDistance = sortMode === "distance" && userLocation;
   spotListEl.innerHTML = spots
     .map((spot) => {
       const thumb = spot.images && spot.images[0]
         ? `<img class="spot-card__thumb" src="${spot.images[0]}" alt="${escapeHtml(spot.name)}" loading="lazy">`
         : `<div class="spot-card__thumb spot-card__thumb--empty"><svg class="icon" width="28" height="28"><use href="#icon-image"/></svg></div>`;
+      const distance = showDistance
+        ? `<span class="spot-card__distance">${distanceKm(userLocation, spot).toFixed(1)} km</span>`
+        : "";
       return `
         <article class="spot-card" data-id="${spot.id}">
           ${thumb}
           <div class="spot-card__body">
-            <h3 class="spot-card__name">${escapeHtml(spot.name)}</h3>
+            <h3 class="spot-card__name">${escapeHtml(spot.name)}${distance}</h3>
             <p class="spot-card__desc">${escapeHtml(spot.description || "No description yet.")}</p>
             <div class="spot-card__tags">${renderTagPills(spot.tags)}</div>
           </div>
@@ -104,7 +135,7 @@ function renderMarkerPreview(spot) {
 }
 
 function render() {
-  const spots = filteredSpots();
+  const spots = sortSpots(filteredSpots());
   renderTagChips();
   renderList(spots);
   mapCtrl.setSpots(spots, renderMarkerPreview);
@@ -560,12 +591,42 @@ clearFiltersBtn.addEventListener("click", () => {
   render();
 });
 
+$("sortSelect").addEventListener("change", (e) => {
+  const mode = e.target.value;
+  if (mode === "distance" && !userLocation) {
+    if (!navigator.geolocation) {
+      showToast("Location isn't available in this browser.", { error: true });
+      e.target.value = sortMode;
+      return;
+    }
+    setLoading(true, "Finding your location…");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        sortMode = "distance";
+        setLoading(false);
+        render();
+      },
+      () => {
+        setLoading(false);
+        showToast("Couldn't get your location — check location permissions.", { error: true });
+        e.target.value = sortMode;
+      },
+      { timeout: 8000 }
+    );
+    return;
+  }
+  sortMode = mode;
+  render();
+});
+
 spotListEl.addEventListener("click", (e) => {
   const card = e.target.closest("[data-id]");
   if (!card) return;
   const id = card.dataset.id;
   mapCtrl.showPreview(id);
   mapCtrl.revealSpot(id);
+  if (isMobileLayout()) switchMobileView("map");
 });
 
 spotListEl.addEventListener("mouseover", (e) => {
