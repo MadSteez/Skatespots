@@ -1,6 +1,6 @@
-import { createMapController } from "./map.js?v=20";
-import * as store from "./store.js?v=20";
-import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=20";
+import { createMapController } from "./map.js?v=21";
+import * as store from "./store.js?v=21";
+import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=21";
 
 const COMMON_TAGS = [
   "stairs", "gap", "ledge", "outledge", "downledge", "flatrail", "outrail",
@@ -565,7 +565,7 @@ spotListEl.addEventListener("click", (e) => {
   if (!card) return;
   const id = card.dataset.id;
   mapCtrl.showPreview(id);
-  openDetailModal(id);
+  mapCtrl.revealSpot(id);
 });
 
 spotListEl.addEventListener("mouseover", (e) => {

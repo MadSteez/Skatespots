@@ -173,6 +173,12 @@ export function createMapController(mapElId) {
     map.setView(m.getLatLng(), Math.max(map.getZoom(), 17), { animate: true });
   }
 
+  function revealSpot(id) {
+    const m = markers.get(id);
+    if (!m) return;
+    if (!map.getBounds().contains(m.getLatLng())) focusSpot(id);
+  }
+
   function enablePickMode(onPick) {
     mapEl.style.cursor = "crosshair";
     pickCallback = onPick;
@@ -221,6 +227,7 @@ export function createMapController(mapElId) {
     setSpots,
     fitToMarkers,
     focusSpot,
+    revealSpot,
     showPreview,
     hidePreview,
     hoverPreviewStart,
