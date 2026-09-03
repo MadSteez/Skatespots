@@ -1,6 +1,6 @@
-import { createMapController } from "./map.js?v=14";
-import * as store from "./store.js?v=14";
-import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=14";
+import { createMapController } from "./map.js?v=15";
+import * as store from "./store.js?v=15";
+import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=15";
 
 const COMMON_TAGS = [
   "ledge", "stairs", "rail", "gap", "manual pad", "bank",
@@ -550,9 +550,19 @@ spotListEl.addEventListener("click", (e) => {
   const card = e.target.closest("[data-id]");
   if (!card) return;
   const id = card.dataset.id;
-  const spot = allSpots.find((s) => s.id === id);
-  if (spot) mapCtrl.showPreview(id, renderMarkerPreview(spot));
+  mapCtrl.showPreview(id);
   openDetailModal(id);
+});
+
+spotListEl.addEventListener("mouseover", (e) => {
+  const card = e.target.closest("[data-id]");
+  if (!card || card.contains(e.relatedTarget)) return;
+  mapCtrl.hoverPreviewStart(card.dataset.id);
+});
+spotListEl.addEventListener("mouseout", (e) => {
+  const card = e.target.closest("[data-id]");
+  if (!card || card.contains(e.relatedTarget)) return;
+  mapCtrl.hoverPreviewEnd(card.dataset.id);
 });
 
 // Prevent page-level zoom on desktop (Ctrl+wheel, Safari's pinch-gesture
@@ -570,7 +580,7 @@ function openSharedSpotFromUrl() {
   const spot = allSpots.find((s) => s.id === decodeURIComponent(match[1]));
   if (!spot) return;
   mapCtrl.focusSpot(spot.id);
-  mapCtrl.showPreview(spot.id, renderMarkerPreview(spot));
+  mapCtrl.showPreview(spot.id);
   openDetailModal(spot.id);
 }
 

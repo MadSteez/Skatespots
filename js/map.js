@@ -66,9 +66,18 @@ export function createMapController(mapElId) {
   // Leaflet's built-in Popup always grows upward from its anchor point, so
   // to place a preview below the marker instead, we manage a plain
   // positioned element ourselves and keep it in sync with the map.
+  //
+  // Two layers of state: a "pinned" preview (from clicking a marker or a
+  // list item — persists until an empty-map click) and a temporary "hover"
+  // preview (from hovering a list item — reverts to whatever's pinned, or
+  // hides, as soon as the hover ends). Hover always takes visual priority
+  // while active, but never overwrites what's pinned underneath it.
   const PREVIEW_GAP = 10; // px reserved above the box for the connecting triangle
+  const spotsById = new Map();
+  let renderPreviewHtmlFn = null;
   let previewEl = null;
-  let previewSpotId = null;
+  let pinnedId = null;
+  let hoverId = null;
 
   function ensurePreviewEl() {
     if (previewEl) return previewEl;
@@ -80,50 +89,74 @@ export function createMapController(mapElId) {
     return previewEl;
   }
 
+  function activePreviewId() {
+    return hoverId !== null ? hoverId : pinnedId;
+  }
+
   function positionPreview() {
-    if (!previewEl || previewSpotId === null) return;
-    const marker = markers.get(previewSpotId);
-    if (!marker) {
-      hidePreview();
-      return;
-    }
+    const id = activePreviewId();
+    if (!previewEl || id === null) return;
+    const marker = markers.get(id);
+    if (!marker) return;
     const point = map.latLngToContainerPoint(marker.getLatLng());
     previewEl.style.left = `${point.x}px`;
     previewEl.style.top = `${point.y + PREVIEW_GAP}px`;
   }
 
-  function showPreview(spotId, contentHtml) {
+  function refreshPreviewDisplay() {
+    const id = activePreviewId();
     const el = ensurePreviewEl();
-    el.querySelector(".marker-preview__content").innerHTML = contentHtml;
-    el.dataset.spotId = spotId;
+    const spot = id !== null ? spotsById.get(id) : null;
+    if (!spot || !markers.has(id)) {
+      el.classList.add("hidden");
+      return;
+    }
+    el.querySelector(".marker-preview__content").innerHTML = renderPreviewHtmlFn(spot);
+    el.dataset.spotId = id;
     el.classList.remove("hidden");
-    previewSpotId = spotId;
     positionPreview();
   }
 
+  function showPreview(id) {
+    pinnedId = id;
+    hoverId = null; // clicking always takes precedence over any lingering hover
+    refreshPreviewDisplay();
+  }
+
+  function hoverPreviewStart(id) {
+    hoverId = id;
+    refreshPreviewDisplay();
+  }
+
+  function hoverPreviewEnd(id) {
+    if (hoverId === id) hoverId = null; // ignore a stale leave from a fast hover switch
+    refreshPreviewDisplay();
+  }
+
   function hidePreview() {
-    if (previewEl) previewEl.classList.add("hidden");
-    previewSpotId = null;
+    pinnedId = null;
+    hoverId = null;
+    refreshPreviewDisplay();
   }
 
   map.on("move zoom", positionPreview);
 
   function setSpots(spots, renderPreviewHtml) {
+    renderPreviewHtmlFn = renderPreviewHtml;
     markers.forEach((m) => map.removeLayer(m));
     markers.clear();
+    spotsById.clear();
     spots.forEach((spot) => {
       if (typeof spot.lat !== "number" || typeof spot.lng !== "number") return;
+      spotsById.set(spot.id, spot);
       const marker = L.marker([spot.lat, spot.lng], { icon: pinIcon() });
-      marker.on("click", () => showPreview(spot.id, renderPreviewHtml(spot)));
+      marker.on("click", () => showPreview(spot.id));
       marker.addTo(map);
       markers.set(spot.id, marker);
     });
-    // Markers get fully recreated above (e.g. after a filter change) — if a
-    // preview was open for a spot that still exists, keep it open in its
-    // new position; otherwise it's gone, so hide the stale preview.
-    if (previewSpotId !== null) {
-      markers.has(previewSpotId) ? positionPreview() : hidePreview();
-    }
+    // Markers get fully recreated above (e.g. after a filter change) — keep
+    // whatever was pinned open in its new position if it still exists.
+    refreshPreviewDisplay();
   }
 
   function fitToMarkers() {
@@ -188,6 +221,9 @@ export function createMapController(mapElId) {
     fitToMarkers,
     focusSpot,
     showPreview,
+    hidePreview,
+    hoverPreviewStart,
+    hoverPreviewEnd,
     enablePickMode,
     disablePickMode,
     clearTempMarker,
