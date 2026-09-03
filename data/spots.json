@@ -56,5 +56,30 @@
     ],
     "updatedAt": "2026-09-03T20:55:48.052Z",
     "createdAt": "2026-09-01T05:27:50.479Z"
+  },
+  {
+    "id": "mtm0or1br3pcnn",
+    "name": "test 5",
+    "description": "",
+    "lat": 51.211078,
+    "lng": 5.517368,
+    "tags": [
+      "stairs",
+      "gap",
+      "ledge",
+      "outledge",
+      "downledge",
+      "flatrail",
+      "outrail",
+      "handrail",
+      "manual pad",
+      "bank",
+      "pyramid",
+      "quarterpipe",
+      "other"
+    ],
+    "images": [],
+    "updatedAt": "2026-09-03T21:08:28.884Z",
+    "createdAt": "2026-09-03T21:08:28.884Z"
   }
 ]
