@@ -69,9 +69,9 @@ export function createMapController(mapElId) {
   //
   // Two layers of state: a "pinned" preview (from clicking a marker or a
   // list item — persists until an empty-map click) and a temporary "hover"
-  // preview (from hovering a list item — reverts to whatever's pinned, or
-  // hides, as soon as the hover ends). Hover always takes visual priority
-  // while active, but never overwrites what's pinned underneath it.
+  // preview (from hovering a list item). Starting a hover dismisses
+  // whatever was pinned for good — ending the hover just hides the preview
+  // rather than bringing the old one back.
   const PREVIEW_GAP = 10; // px reserved above the box for the connecting triangle
   const spotsById = new Map();
   let renderPreviewHtmlFn = null;
@@ -124,13 +124,14 @@ export function createMapController(mapElId) {
   }
 
   function hoverPreviewStart(id) {
+    pinnedId = null; // hovering dismisses whatever was open, for good — not just while hovering
     hoverId = id;
     refreshPreviewDisplay();
   }
 
   function hoverPreviewEnd(id) {
     if (hoverId === id) hoverId = null; // ignore a stale leave from a fast hover switch
-    refreshPreviewDisplay();
+    refreshPreviewDisplay(); // nothing pinned anymore, so this simply hides
   }
 
   function hidePreview() {
