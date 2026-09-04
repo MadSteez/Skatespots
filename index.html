@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="css/style.css?v=24">
+<link rel="stylesheet" href="css/style.css?v=25">
 
 <!-- inline SVG icon sprite, referenced via <use> throughout the app -->
 </head>
@@ -84,12 +84,15 @@
   <div class="layout">
     <aside class="sidebar" id="sidebarPane">
       <div class="sidebar__toolbar">
-        <select class="sort-select" id="sortSelect" aria-label="Sort spots by">
-          <option value="default">Sort: default</option>
-          <option value="distance">Nearest to me</option>
-          <option value="created_desc">Newest added</option>
-          <option value="updated_desc">Recently updated</option>
-        </select>
+        <div class="sort-wrap">
+          <select class="sort-select" id="sortSelect" aria-label="Sort spots by">
+            <option value="default">Sort: default</option>
+            <option value="distance">Nearest to me</option>
+            <option value="created_desc">Newest added</option>
+            <option value="updated_desc">Recently updated</option>
+          </select>
+          <svg class="sort-wrap__chevron icon" width="12" height="12" aria-hidden="true"><use href="#icon-chevron-right"/></svg>
+        </div>
       </div>
       <div class="sidebar__list" id="spotList"></div>
       <div class="empty-state hidden" id="emptyState">
@@ -235,6 +238,6 @@
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script type="module" src="js/app.js?v=24"></script>
+<script type="module" src="js/app.js?v=25"></script>
 </body>
 </html>
