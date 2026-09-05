@@ -86,5 +86,17 @@
     "location": "",
     "updatedAt": "2026-09-05T19:18:39.575Z",
     "createdAt": "2026-09-03T21:08:28.884Z"
+  },
+  {
+    "id": "mtorpl2g088ggj",
+    "name": "test 6",
+    "description": "",
+    "lat": 51.211185,
+    "lng": 5.424843,
+    "tags": [],
+    "images": [],
+    "location": "Overpelt, Limburg, België",
+    "updatedAt": "2026-09-05T19:20:30.444Z",
+    "createdAt": "2026-09-05T19:20:30.444Z"
   }
 ]
