@@ -1,6 +1,6 @@
-import { createMapController } from "./map.js?v=27";
-import * as store from "./store.js?v=27";
-import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=27";
+import { createMapController } from "./map.js?v=28";
+import * as store from "./store.js?v=28";
+import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=28";
 
 const COMMON_TAGS = [
   "stairs", "gap", "ledge", "outledge", "downledge", "flatrail", "outrail",
@@ -46,7 +46,7 @@ function allTags() {
 function filteredSpots() {
   const q = searchQuery.trim().toLowerCase();
   return allSpots.filter((s) => {
-    const matchesQuery = !q || s.name.toLowerCase().includes(q) || (s.description || "").toLowerCase().includes(q) || (s.tags || []).some((t) => t.toLowerCase().includes(q));
+    const matchesQuery = !q || s.name.toLowerCase().includes(q) || (s.description || "").toLowerCase().includes(q) || (s.tags || []).some((t) => t.toLowerCase().includes(q)) || (s.location || "").toLowerCase().includes(q);
     const matchesTags = activeTagFilters.size === 0 || (s.tags || []).some((t) => activeTagFilters.has(t));
     return matchesQuery && matchesTags;
   });
@@ -123,7 +123,7 @@ function renderList(spots) {
     return;
   }
   emptyStateEl.classList.add("hidden");
-  const showDistance = sortMode === "distance" && userLocation;
+  const showDistance = !!userLocation;
   spotListEl.innerHTML = spots
     .map((spot) => {
       const thumb = spot.images && spot.images[0]
@@ -224,14 +224,16 @@ function openDetailModal(id) {
   galleryIndex = 0;
   renderDetailGallery();
 
-  const showDistance = sortMode === "distance" && userLocation;
+  const showDistance = !!userLocation;
   const distanceBadge = showDistance
     ? `<span class="spot-card__distance">${distanceKm(userLocation, spot).toFixed(1)} km</span>`
     : "";
   $("detailName").innerHTML = `${escapeHtml(spot.name)}${distanceBadge}`;
   $("detailTags").innerHTML = renderTagPills(spot.tags);
   $("detailDesc").textContent = spot.description || "No description yet.";
-  $("detailCoords").textContent = `${spot.lat.toFixed(5)}, ${spot.lng.toFixed(5)}`;
+  $("detailCoords").textContent = spot.location
+    ? `${spot.location} · ${spot.lat.toFixed(5)}, ${spot.lng.toFixed(5)}`
+    : `${spot.lat.toFixed(5)}, ${spot.lng.toFixed(5)}`;
   const added = formatDate(spot.createdAt);
   const edited = formatDate(spot.updatedAt);
   $("detailDates").textContent = [
