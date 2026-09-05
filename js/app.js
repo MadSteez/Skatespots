@@ -1,6 +1,6 @@
-import { createMapController } from "./map.js?v=26";
-import * as store from "./store.js?v=26";
-import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=26";
+import { createMapController } from "./map.js?v=27";
+import * as store from "./store.js?v=27";
+import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=27";
 
 const COMMON_TAGS = [
   "stairs", "gap", "ledge", "outledge", "downledge", "flatrail", "outrail",
@@ -72,6 +72,7 @@ function requestUserLocation(onDone) {
   navigator.geolocation.getCurrentPosition(
     (pos) => {
       userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      mapCtrl.showUserLocation(userLocation.lat, userLocation.lng);
       onDone(true);
     },
     () => onDone(false),
@@ -223,7 +224,11 @@ function openDetailModal(id) {
   galleryIndex = 0;
   renderDetailGallery();
 
-  $("detailName").textContent = spot.name;
+  const showDistance = sortMode === "distance" && userLocation;
+  const distanceBadge = showDistance
+    ? `<span class="spot-card__distance">${distanceKm(userLocation, spot).toFixed(1)} km</span>`
+    : "";
+  $("detailName").innerHTML = `${escapeHtml(spot.name)}${distanceBadge}`;
   $("detailTags").innerHTML = renderTagPills(spot.tags);
   $("detailDesc").textContent = spot.description || "No description yet.";
   $("detailCoords").textContent = `${spot.lat.toFixed(5)}, ${spot.lng.toFixed(5)}`;

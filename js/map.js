@@ -209,10 +209,28 @@ export function createMapController(mapElId) {
     hidePreview();
   });
 
+  let userLocationMarker = null;
+
+  function showUserLocation(lat, lng) {
+    const latlng = [lat, lng];
+    if (userLocationMarker) {
+      userLocationMarker.setLatLng(latlng);
+      return;
+    }
+    userLocationMarker = L.marker(latlng, {
+      icon: L.divIcon({ className: "", html: `<div class="user-location-dot"></div>`, iconSize: [18, 18], iconAnchor: [9, 9] }),
+      interactive: false,
+      zIndexOffset: -1000, // keep it below spot pins if they overlap
+    }).addTo(map);
+  }
+
   function locate() {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
-      (pos) => map.setView([pos.coords.latitude, pos.coords.longitude], 14, { animate: true }),
+      (pos) => {
+        map.setView([pos.coords.latitude, pos.coords.longitude], 14, { animate: true });
+        showUserLocation(pos.coords.latitude, pos.coords.longitude);
+      },
       () => {},
       { timeout: 8000 }
     );
@@ -237,6 +255,7 @@ export function createMapController(mapElId) {
     clearTempMarker,
     placeTempMarker,
     locate,
+    showUserLocation,
     invalidateSize,
     toggleMapType,
   };
