@@ -1,6 +1,6 @@
-import { createMapController } from "./map.js?v=25";
-import * as store from "./store.js?v=25";
-import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=25";
+import { createMapController } from "./map.js?v=26";
+import * as store from "./store.js?v=26";
+import { escapeHtml, showToast, setLoading, debounce, uid } from "./utils.js?v=26";
 
 const COMMON_TAGS = [
   "stairs", "gap", "ledge", "outledge", "downledge", "flatrail", "outrail",
@@ -52,7 +52,8 @@ function filteredSpots() {
   });
 }
 
-let sortMode = "default";
+let sortMode = "distance"; // preferred default — falls back to "name" if geolocation isn't available
+let sortDirection = 1; // 1 = ascending (nearest/A-Z/oldest first), -1 = reversed
 let userLocation = null; // { lat, lng } once geolocation succeeds
 
 function distanceKm(a, b) {
@@ -66,17 +67,33 @@ function distanceKm(a, b) {
   return R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
 }
 
+function requestUserLocation(onDone) {
+  if (!navigator.geolocation) return onDone(false);
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      onDone(true);
+    },
+    () => onDone(false),
+    { timeout: 8000 }
+  );
+}
+
 function sortSpots(spots) {
+  let sorted;
   if (sortMode === "distance" && userLocation) {
-    return [...spots].sort((a, b) => distanceKm(userLocation, a) - distanceKm(userLocation, b));
+    sorted = [...spots].sort((a, b) => distanceKm(userLocation, a) - distanceKm(userLocation, b));
+  } else if (sortMode === "name") {
+    sorted = [...spots].sort((a, b) => a.name.localeCompare(b.name));
+  } else if (sortMode === "created") {
+    sorted = [...spots].sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
+  } else if (sortMode === "updated") {
+    sorted = [...spots].sort((a, b) => new Date(a.updatedAt || 0) - new Date(b.updatedAt || 0));
+  } else {
+    sorted = [...spots];
   }
-  if (sortMode === "created_desc") {
-    return [...spots].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-  }
-  if (sortMode === "updated_desc") {
-    return [...spots].sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
-  }
-  return spots;
+  if (sortDirection === -1) sorted.reverse();
+  return sorted;
 }
 
 function renderTagChips() {
@@ -600,23 +617,27 @@ $("sortSelect").addEventListener("change", (e) => {
       return;
     }
     setLoading(true, "Finding your location…");
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        sortMode = "distance";
-        setLoading(false);
-        render();
-      },
-      () => {
-        setLoading(false);
+    requestUserLocation((success) => {
+      setLoading(false);
+      if (!success) {
         showToast("Couldn't get your location — check location permissions.", { error: true });
         e.target.value = sortMode;
-      },
-      { timeout: 8000 }
-    );
+        return;
+      }
+      sortMode = "distance";
+      render();
+    });
     return;
   }
   sortMode = mode;
+  render();
+});
+
+$("sortDirectionBtn").addEventListener("click", () => {
+  sortDirection *= -1;
+  const btn = $("sortDirectionBtn");
+  btn.classList.toggle("is-active", sortDirection === -1);
+  btn.setAttribute("aria-pressed", sortDirection === -1 ? "true" : "false");
   render();
 });
 
@@ -665,6 +686,11 @@ function openSharedSpotFromUrl() {
 switchMobileView("map");
 refreshAll().then(() => {
   openSharedSpotFromUrl();
+  requestUserLocation((success) => {
+    if (!success) sortMode = "name";
+    $("sortSelect").value = sortMode;
+    render();
+  });
   const cfg = store.getConfig();
   const alreadySeenTip = localStorage.getItem("skatespots_seen_tip");
   if (!alreadySeenTip) {
