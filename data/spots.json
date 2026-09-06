@@ -98,5 +98,17 @@
     "location": "Overpelt, Limburg, België",
     "updatedAt": "2026-09-05T19:20:30.444Z",
     "createdAt": "2026-09-05T19:20:30.444Z"
+  },
+  {
+    "id": "mtpfywm4hwljcj",
+    "name": "test 7",
+    "description": "",
+    "lat": 51.169026,
+    "lng": 4.395105,
+    "tags": [],
+    "images": [],
+    "location": "Antwerpen, Antwerpen, België",
+    "updatedAt": "2026-09-06T06:39:35.791Z",
+    "createdAt": "2026-09-06T06:39:35.791Z"
   }
 ]
