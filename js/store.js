@@ -1,6 +1,6 @@
-import { GitHubStore } from "./github.js?v=29";
-import { SITE_CONFIG } from "./site-config.js?v=29";
-import { utf8ToB64, b64ToUtf8, compressImage, blobToRawBase64, blobToDataUrl } from "./utils.js?v=29";
+import { GitHubStore } from "./github.js?v=30";
+import { SITE_CONFIG } from "./site-config.js?v=30";
+import { utf8ToB64, b64ToUtf8, compressImage, blobToRawBase64, blobToDataUrl } from "./utils.js?v=30";
 
 const TOKEN_KEY = "skatespots_token";
 const LEGACY_CONFIG_KEY = "skatespots_config"; // older versions saved a whole config object here, including owner/repo — that could permanently shadow site-config.js, so it's no longer read except to migrate a saved token out of it once.
@@ -171,22 +171,18 @@ async function uploadImages(files, spotId, onProgress) {
  */
 async function reverseGeocode(lat, lng) {
   try {
-    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=14&addressdetails=1`);
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
     if (!res.ok) return "";
     const data = await res.json();
-    const a = data.address || {};
-    // A city district (e.g. Wilrijk within Antwerp) is more locally useful
-    // than the parent city, so prefer it — but still show the city
-    // alongside it for context, unless there is no finer district and the
-    // city would just repeat itself.
-    const district = a.suburb || a.city_district || a.borough || a.neighbourhood || a.quarter || "";
-    const city = a.city || a.town || a.village || a.municipality || a.county || "";
-    const country = a.country || "";
-    const primary = district || city;
-    const parts = [primary];
-    if (city && city !== primary) parts.push(city);
-    parts.push(country);
-    return parts.filter(Boolean).join(", ");
+    let full = data.display_name || "";
+    // If the closest matched object is a named place (a historic site, shop,
+    // park, etc. — not just a plain address point), display_name leads with
+    // that name. It's more likely to change than the address itself, so
+    // strip it and keep the actual address that follows.
+    if (data.name && full.startsWith(data.name)) {
+      full = full.slice(data.name.length).replace(/^,\s*/, "");
+    }
+    return full;
   } catch (_) {
     return ""; // best-effort only — a spot still saves fine without a location label
   }
